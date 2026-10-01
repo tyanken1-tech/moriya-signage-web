@@ -75,6 +75,11 @@ h1 { margin: 4px 0 0; font-size: clamp(31px, 8.5vw, 40px); font-weight: 700; lin
 .overlay.is-open .detail-sheet, .settings-overlay.is-open .settings-sheet { transform: translateY(0) scale(1); opacity: 1; }
 .overlay .detail-sheet { transform: translateY(25vh) scale(.94,.52); transform-origin: center bottom; }
 .overlay.is-open .detail-sheet { transform: translateY(0) scale(1); }
+.overlay.is-open .detail-sheet.is-dragging { transform: translateY(var(--drag-offset, 0px)); transition: none; }
+.overlay .detail-sheet.is-dismissing { transform: translateY(var(--dismiss-distance)); opacity: 0; }
+#detailSheet .detail-header { touch-action: none; cursor: grab; }
+#detailSheet.is-dragging .detail-header { cursor: grabbing; }
+.overlay:has(.is-dragging) .overlay-scrim { transition: none; }
 .overlay .detail-sheet { height: 100%; max-height: none; min-height: 0; }
 .overlay .detail-content { flex: 1; min-height: 0; }
 .detail-header { display: flex; align-items: start; justify-content: space-between; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.2); padding-bottom: 16px; }

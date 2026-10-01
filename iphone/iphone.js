@@ -24,6 +24,7 @@
   let photoPeriod = "day";
   let activeBackground = "";
   const closeTimers = new Map();
+  let detailDrag;
   let lastMinute = "";
   let viewportFrame = 0;
 
@@ -101,6 +102,7 @@
   }
   function openOverlay({ eyebrow, title, subtitle, content, note }) {
     clearTimeout(closeTimers.get("#overlay"));
+    detailDrag?.reset();
     $("#detailEyebrow").textContent = eyebrow;
     $("#detailTitle").textContent = title;
     $("#detailSubtitle").textContent = subtitle || "";
@@ -115,7 +117,7 @@
     if (overlay.hidden) return;
     overlay.classList.remove("is-open");
     clearTimeout(closeTimers.get(selector));
-    closeTimers.set(selector, setTimeout(() => { overlay.hidden = true; }, 390));
+    closeTimers.set(selector, setTimeout(() => { overlay.hidden = true; if (selector === "#overlay") detailDrag?.reset(); }, 390));
   }
   function openTrain(time) {
     const date = now(); const dayType = currentDayType(date, parts(date));
@@ -201,6 +203,7 @@
   $(".train-panel").addEventListener("touchstart", (event) => { if ($(".train-panel").classList.contains("is-detail")) trainSwipe = [event.touches[0].clientX, event.touches[0].clientY]; }, { passive: true });
   $(".train-panel").addEventListener("touchend", (event) => { if (!trainSwipe) return; const dx = event.changedTouches[0].clientX - trainSwipe[0]; const dy = event.changedTouches[0].clientY - trainSwipe[1]; if (dx > 55 && Math.abs(dx) > Math.abs(dy) * 1.3) closeTrain(); trainSwipe = null; }, { passive: true });
   $("#garbagePreview").addEventListener("click", openGarbage);
+  detailDrag = window.MORIYA_SHEET_DRAG.attach($("#detailSheet .detail-header"), $("#detailSheet"), $("#overlay"), () => closeOverlay("#overlay"));
   $("#detailClose").addEventListener("click", () => closeOverlay("#overlay"));
   $("[data-close-overlay]").addEventListener("click", () => closeOverlay("#overlay"));
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") { closeOverlay("#overlay"); closeOverlay("#settingsOverlay"); } });
