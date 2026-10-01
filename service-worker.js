@@ -1,4 +1,4 @@
-const CACHE_NAME = "moriya-signage-v95-mobile-sheet-drag";
+const CACHE_NAME = "moriya-signage-v96-preserve-mobile-offline";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -111,7 +111,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
+      Promise.all(keys.filter((key) => key.startsWith("moriya-signage-") && key !== CACHE_NAME).map((key) => caches.delete(key)))
     )
   );
   self.clients.claim();

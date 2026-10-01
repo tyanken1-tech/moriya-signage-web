@@ -149,6 +149,10 @@
     const file = (photo === "custom" ? defaults[`${period}Photo`] : photo).replace(/\.webp$/, "-rich.webp");
     const url = custom || new URL(`../assets/backgrounds/${file}`, location.href).href;
     if (url !== activeBackground) { activeBackground = url; document.documentElement.style.setProperty("--scene-image", `url("${url}")`); }
+    window.MORIYA_OFFLINE?.selectPhotos(["day", "night"].map(key => {
+      const selectedPhoto = settings[`${key}Photo`];
+      return selectedPhoto === "custom" ? "data:local" : new URL(`../assets/backgrounds/${selectedPhoto.replace(/\.webp$/, "-rich.webp")}`, location.href).href;
+    }));
   }
   function renderPhotoChoices() {
     $("#backgroundChoices").innerHTML = theme.groups.map(([, label, items], index) => `<details ${index === 0 ? "open" : ""}><summary>${safe(label)}</summary><div class="photo-grid">${items.map(([id, title]) => `<button class="background-choice" type="button" data-photo="${safe(id)}" aria-label="${safe(title)}" aria-pressed="false"><img src="../assets/backgrounds/${safe(id.replace(/\.webp$/, "-rich.webp"))}" alt="" loading="lazy"><span>${safe(title)}</span></button>`).join("")}</div></details>`).join("");
@@ -178,7 +182,7 @@
     for (const [id, key] of [["offsetMinutes", "offset"], ["redMinutes", "red"], ["orangeMinutes", "orange"], ["blurAmount", "blur"], ["glassOpacity", "opacity"]]) {
       $(`#${id}`).addEventListener("input", (event) => { settings[key] = Number(event.target.value); saveSettings(); applySettings(); });
     }
-    $("#backgroundChoices").addEventListener("click", (event) => { const button = event.target.closest("[data-photo]"); if (!button) return; settings[`${photoPeriod}Photo`] = button.dataset.photo; saveSettings(); applySettings(); });
+    $("#backgroundChoices").addEventListener("click", (event) => { const button = event.target.closest("[data-photo]"); if (!navigator.onLine || !button) return; settings[`${photoPeriod}Photo`] = button.dataset.photo; saveSettings(); applySettings(); });
     $(".photo-periods").addEventListener("click", (event) => { const button = event.target.closest("[data-photo-period]"); if (!button) return; photoPeriod = button.dataset.photoPeriod; updatePhotoSelection(); });
     $("#autoDayNight").addEventListener("change", (event) => { settings.autoDayNight = event.target.checked; saveSettings(); applySettings(); });
     for (const key of ["dayStart", "nightStart"]) $(`#${key}`).addEventListener("change", (event) => { if (!event.target.value) return; settings[key] = event.target.value; saveSettings(); applySettings(); });

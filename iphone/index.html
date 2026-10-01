@@ -61,6 +61,7 @@
         <label>ブラーの強さ <span id="blurValue"></span><input id="blurAmount" type="range" min="0" max="64" step="1"></label>
         <label>ガラスの透明度 <span id="opacityValue"></span><input id="glassOpacity" type="range" min="80" max="100" step="1"></label>
         <h3>背景写真</h3>
+        <p class="settings-note" id="photoOfflineNotice" hidden>オフライン中は背景写真を変更できません。</p>
         <label class="check-label"><input id="autoDayNight" type="checkbox"> 時刻に合わせて昼夜を切り替える</label>
         <div class="day-night-times"><label>昼の開始<input id="dayStart" type="time" aria-label="昼の開始時刻"></label><label>夜の開始<input id="nightStart" type="time" aria-label="夜の開始時刻"></label></div>
         <div class="photo-periods" role="group" aria-label="設定する背景"><button type="button" data-photo-period="day" aria-pressed="true">昼の写真</button><button type="button" data-photo-period="night" aria-pressed="false">夜の写真</button></div>
@@ -68,6 +69,7 @@
         <div class="background-choices" id="backgroundChoices"></div>
         <label class="file-label" for="customBackground">端末内の写真を選択</label><input id="customBackground" type="file" accept="image/*">
         <p class="settings-note">設定はこのブラウザに保存されます。端末内の写真は公開されません。</p>
+        <p class="settings-note" id="offlineStatus" role="status">オフライン用データを保存しています…</p>
       </div>
     </section>
   </div>
@@ -77,6 +79,7 @@
   <script src="../data/moriya-garbage-calendar.js"></script>
   <script src="./viewport.js?v=20261001-fullscreen-2"></script>
   <script src="./sheet-drag.js?v=20261001-drag-3"></script>
-  <script src="./iphone.js?v=20261001-drag-3"></script>
+  <script src="./offline.js?v=20261001-offline-1"></script>
+  <script src="./iphone.js?v=20261001-offline-1"></script>
 </body>
 </html>
