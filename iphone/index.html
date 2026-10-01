@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14231b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>守谷駅・ごみ収集 | Moriya</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./iphone.css">
+</head>
+<body>
+  <div class="background" id="background" aria-hidden="true"></div>
+  <div class="background-shade" aria-hidden="true"></div>
+  <main class="mobile-app">
+    <section class="train-panel glass" aria-label="守谷駅上り時刻表">
+      <div class="train-track">
+        <div class="train-pane">
+          <div class="train-caption"><span>秋葉原方面 <span class="day-kind" id="dayKind">--</span></span><span id="alertCaption">15分以内は赤表示</span></div>
+          <ol class="train-list" id="trainList"></ol>
+        </div>
+        <div class="train-pane">
+          <header class="train-detail-head"><button class="train-back round-button" id="trainBack" type="button" aria-label="時刻表へ戻る"><span class="material-icon" aria-hidden="true">chevron_left</span></button><h2 id="trainDetailTitle">列車を選択</h2></header>
+          <ol class="train-detail-list" id="trainDetailList"></ol>
+          <p class="train-detail-note">着時刻の掲載がない駅は、公式の発時刻を表示しています。</p>
+        </div>
+      </div>
+    </section>
+    <div class="bottom-row">
+    <button class="garbage-preview glass" id="garbagePreview" type="button" aria-label="今後のごみ収集予定を開く">
+      <span class="garbage-preview-list" id="garbagePreviewList"></span>
+    </button>
+    <div class="bottom-controls">
+      <button class="round-button" id="settingsOpen" type="button" aria-label="設定を開く"><span class="material-icon" aria-hidden="true">settings</span></button>
+      <span id="currentDate" class="current-date"></span>
+    </div>
+    </div>
+  </main>
+  <div class="overlay" id="overlay" hidden>
+    <div class="overlay-scrim" data-close-overlay></div>
+    <section class="detail-sheet glass" id="detailSheet" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <header class="detail-header"><div><span class="eyebrow" id="detailEyebrow"></span><h2 id="detailTitle"></h2><p id="detailSubtitle"></p></div><button class="round-button" id="detailClose" type="button" aria-label="閉じる"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 8 24 24M24 8 8 24"/></svg></button></header>
+      <div id="detailContent" class="detail-content"></div>
+      <p id="detailNote" class="detail-note"></p>
+    </section>
+  </div>
+  <div class="settings-overlay" id="settingsOverlay" hidden>
+    <div class="overlay-scrim" data-close-settings></div>
+    <section class="settings-sheet glass" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <header class="detail-header"><div><span class="eyebrow">DISPLAY SETTINGS</span><h2 id="settingsTitle">表示設定</h2></div><button class="round-button" id="settingsClose" type="button" aria-label="設定を閉じる"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 8 24 24M24 8 8 24"/></svg></button></header>
+      <div class="settings-content">
+        <h3>時刻表</h3>
+        <label>何分後以降の電車を表示 <span id="offsetValue"></span><input id="offsetMinutes" type="range" min="0" max="30" step="1"></label>
+        <label>赤で目立たせる分数以下 <span id="redValue"></span><input id="redMinutes" type="range" min="1" max="30" step="1"></label>
+        <label>オレンジで目立たせる分数以下 <span id="orangeValue"></span><input id="orangeMinutes" type="range" min="1" max="45" step="1"></label>
+        <h3>ガラス</h3>
+        <label>ブラーの強さ <span id="blurValue"></span><input id="blurAmount" type="range" min="0" max="64" step="1"></label>
+        <label>ガラスの透明度 <span id="opacityValue"></span><input id="glassOpacity" type="range" min="80" max="100" step="1"></label>
+        <h3>背景写真</h3>
+        <label class="check-label"><input id="autoDayNight" type="checkbox"> 時刻に合わせて昼夜を切り替える</label>
+        <div class="day-night-times"><label>昼の開始<input id="dayStart" type="time" aria-label="昼の開始時刻"></label><label>夜の開始<input id="nightStart" type="time" aria-label="夜の開始時刻"></label></div>
+        <div class="photo-periods" role="group" aria-label="設定する背景"><button type="button" data-photo-period="day" aria-pressed="true">昼の写真</button><button type="button" data-photo-period="night" aria-pressed="false">夜の写真</button></div>
+        <p class="selected-photo" id="selectedPhoto"></p>
+        <div class="background-choices" id="backgroundChoices"></div>
+        <label class="file-label" for="customBackground">端末内の写真を選択</label><input id="customBackground" type="file" accept="image/*">
+        <p class="settings-note">設定はこのブラウザに保存されます。端末内の写真は公開されません。</p>
+      </div>
+    </section>
+  </div>
+  <script src="../data/display-theme.js"></script>
+  <script src="../data/tx-moriya-akihabara.js"></script>
+  <script src="../data/tx-moriya-arrivals.js"></script>
+  <script src="../data/moriya-garbage-calendar.js"></script>
+  <script src="./iphone.js"></script>
+</body>
+</html>

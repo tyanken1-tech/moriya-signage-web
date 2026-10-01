@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moriya Signage</title>
+    <link rel="icon" href="data:," />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta name="theme-color" content="#050708" />
+    <style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07100e;color:#fff}</style>
+  <link rel="stylesheet" href="./styles.css?v=20260929-2" />
+  <link rel="stylesheet" href="./new-ui.css?v=20261001-1" />
+  </head>
+  <body>
+    <div class="viewport-shell" id="viewportShell">
+      <div class="viewport-background is-active" data-viewport-background-layer="0" aria-hidden="true"></div>
+      <div class="viewport-background" data-viewport-background-layer="1" aria-hidden="true"></div>
+      <div id="localVideoStage" class="local-video-stage" aria-hidden="true">
+        <video id="localBackgroundVideo" class="local-background-video" muted loop playsinline preload="metadata"></video>
+        <div class="local-video-grade"></div>
+      </div>
+      <main class="signage classic-signage" aria-label="守谷サイネージ クラシックモード">
+        <div class="signage-background is-active" data-background-layer="0" aria-hidden="true"></div>
+        <div class="signage-background" data-background-layer="1" aria-hidden="true"></div>
+        <section class="train-card card">
+          <div class="card-head">
+            <div>
+              <p class="kicker">Tsukuba Express</p>
+              <h2>守谷駅 上り</h2>
+            </div>
+            <div class="train-head-meta">
+              <p id="trainLeadLabel" class="muted">10分後以降の次発</p>
+              <span id="trainDayType" class="soft-pill">平日</span>
+            </div>
+          </div>
+          <div id="nextTrainBox" class="next-train" aria-live="polite">
+            <div class="next-train-main">
+              <div id="nextTrainService" class="service-cell">
+                <span id="nextTrainKind" class="service-chip local">普通</span>
+                <span id="nextTrainOrigin" class="origin-label" hidden>始発</span>
+              </div>
+              <strong id="nextTrain" class="numeric-text">--:--</strong>
+              <span id="nextTrainSub" class="next-train-sub"><span class="wait-number">--</span><span class="wait-unit">分後</span></span>
+            </div>
+            <p id="nextTrainNote" class="train-note next-train-note" hidden></p>
+          </div>
+          <div class="scroll-region">
+            <ol id="trains" class="train-list" aria-live="polite"></ol>
+          </div>
+        </section>
+
+        <section class="weather-card card">
+          <div class="card-head">
+            <div>
+              <p class="kicker">Weather</p>
+              <h2 id="weatherTitle">茨城県 守谷市</h2>
+            </div>
+            <div class="weather-actions">
+              <button id="refreshWeather" class="tiny-button" type="button" aria-label="天気を更新">↻</button>
+              <strong id="temperature" class="weather-temp numeric-text">--°</strong>
+            </div>
+          </div>
+          <div class="weather-summary">
+            <span id="weatherIcon" class="material-symbols-outlined weather-symbol large" aria-hidden="true">cloud</span>
+            <div>
+              <p id="weatherSummary">天気を取得中</p>
+              <span id="weatherDetail">降水 --% / 風 --m/s</span>
+            </div>
+          </div>
+          <div id="forecast" class="forecast-strip scroll-x" aria-live="polite"></div>
+          <p id="weatherStatus" class="card-note">Open-Meteoから取得します</p>
+        </section>
+
+        <section class="calendar-card card">
+          <div class="card-head">
+            <div>
+              <p class="kicker">Calendar</p>
+              <h2 id="calendarTitle">今日の予定</h2>
+            </div>
+            <div class="calendar-date-control">
+              <button id="calendarDateButton" class="soft-pill calendar-date-button" type="button">日付を変更</button>
+            </div>
+          </div>
+          <div class="scroll-region">
+            <ol id="events" class="event-list" aria-live="polite"></ol>
+          </div>
+          <p id="calendarStatus" class="card-note"></p>
+        </section>
+
+        <section class="time-card card">
+          <div class="time-main">
+            <p class="kicker">Moriya Signage</p>
+            <div class="time-line">
+              <h1 id="clock" class="numeric-text">
+                <span id="clockHour">--</span><span class="time-separator">:</span><span id="clockMinute">--</span>
+              </h1>
+              <p id="seconds" class="seconds numeric-text">--</p>
+            </div>
+          </div>
+          <div class="date-row">
+            <div>
+              <strong id="date" class="date-text">----/--/--</strong>
+              <span id="weekday" class="date-text">---</span>
+            </div>
+          </div>
+        </section>
+
+        <button id="settingsButton" class="settings-button" type="button" aria-label="設定を開く" aria-expanded="false">
+          <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+        </button>
+      </main>
+
+      <main class="new-signage" id="newSignage" data-active-page="home" aria-label="守谷サイネージ ニューモード">
+        <div class="signage-background is-active" data-background-layer="0" aria-hidden="true"></div>
+        <div class="signage-background" data-background-layer="1" aria-hidden="true"></div>
+        <div class="new-glass-surface" aria-hidden="true"></div>
+        <div class="new-motion-glass-layer" id="newMotionGlassLayer" aria-hidden="true"></div>
+        <div class="new-page-stage" id="newPageStage">
+          <section class="new-page new-home-page is-active" data-page="home" aria-label="ホーム">
+            <button class="edge-nav edge-nav-left" id="newGoCommute" type="button" aria-label="時刻表と予定を表示">
+              <span class="material-symbols-outlined" aria-hidden="true">keyboard_double_arrow_left</span>
+            </button>
+            <button class="edge-nav edge-nav-right" id="newGoWeather" type="button" aria-label="天気の詳細を表示">
+              <span class="material-symbols-outlined" aria-hidden="true">keyboard_double_arrow_right</span>
+            </button>
+
+            <button class="new-weather-hero new-tap-area" id="newWeatherTap" type="button" aria-label="天気の詳細を表示">
+              <span id="newWeatherIcon" class="material-symbols-outlined new-weather-icon" aria-hidden="true">partly_cloudy_day</span>
+              <span class="new-weather-copy">
+                <span id="newWeatherLocation" class="new-location">茨城県 守谷市</span>
+                <span id="newWeatherSummary" class="new-weather-summary">天気を取得中</span>
+              </span>
+              <span id="newTemperature" class="new-temperature new-number">--°</span>
+              <span id="newDailyTemps" class="new-weather-facts new-daily-temps-stack new-number"><span id="newDailyMax">--°</span><i aria-hidden="true"></i><span id="newDailyMin">--°</span></span>
+              <span class="new-rain-fact new-weather-rain"><span class="material-symbols-outlined" aria-hidden="true">water_drop</span><span id="newPrecipProbability" class="new-number">--%</span></span>
+            </button>
+
+            <div class="new-forecast-preview new-panel-lines" id="newForecastPreview" aria-label="天気予報"></div>
+
+            <section class="new-market-widget new-home-widget new-rect-panel" id="newMarketWidget" aria-label="為替・株式情報" hidden>
+              <div id="newMarketItems" class="new-market-items"></div>
+            </section>
+
+            <section class="new-remo-widget new-home-widget new-rect-panel" id="newRemoWidget" aria-label="室温・家電操作" hidden>
+              <button class="new-remo-temperature" id="newRemoExpand" type="button" aria-label="スマートホームの操作を開く">
+                <strong id="newRemoTemperature" class="new-number">--</strong>
+                <time id="newRemoUpdated" class="new-number">接続待ち</time>
+              </button>
+              <div id="newRemoActions" class="new-remo-actions"></div>
+              <div id="newHybridMarket" class="new-hybrid-market" hidden></div>
+            </section>
+
+            <button class="new-garbage-widget new-home-widget new-rect-panel" id="newGarbageWidget" type="button" aria-label="ごみ収集予定を開く">
+              <span id="newGarbagePreview" class="new-garbage-preview"></span>
+            </button>
+
+            <button class="new-sheet-dismiss-layer" id="newSheetDismissLayer" type="button" hidden aria-label="開いているウィンドウを閉じる"></button>
+
+            <section class="new-garbage-schedule-sheet new-rect-panel" id="newGarbageScheduleSheet" hidden aria-label="ごみ収集予定">
+              <header>
+                <div><span class="new-eyebrow">CLEAN CALENDAR</span><h2>ごみ収集予定</h2></div>
+                <button id="newGarbageClose" class="new-garbage-close" type="button" aria-label="ごみ収集予定を閉じる"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 8 24 24M24 8 8 24"/></svg></button>
+              </header>
+              <div id="newGarbageScheduleList" class="new-garbage-schedule-list"></div>
+              <p id="newGarbageCoverage" class="new-garbage-coverage"></p>
+            </section>
+
+            <section class="new-smart-sheet new-rect-panel" id="newSmartSheet" hidden aria-label="スマートホームの操作">
+              <header>
+                <h2>SMART HOME</h2>
+                <div class="new-smart-sheet-tools">
+                  <button class="new-pin-button" id="newSmartScheduleList" type="button" aria-label="全端末の家電予約一覧を表示" aria-pressed="false"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="7" width="22" height="22" rx="2"/><path d="M10 3v8M22 3v8M5 15h22M10 20h3M19 20h3M10 25h3"/></svg></button>
+                  <button class="new-pin-button" id="newSmartSort" type="button" aria-label="ボタンを並べ替える" aria-pressed="false"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m9 7-4 4 4 4M5 11h18M23 25l4-4-4-4M27 21H9"/></svg></button>
+                  <button class="new-pin-button" id="newSmartAdd" type="button" aria-label="操作ボタンを追加"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 6v20M6 16h20"/></svg></button>
+                  <button class="new-pin-button" id="newSmartClose" type="button" aria-label="スマートホームの操作を閉じる"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 8 24 24M24 8 8 24"/></svg></button>
+                </div>
+              </header>
+              <div class="new-smart-sheet-list" id="newSmartSheetList"></div>
+              <div class="new-smart-reservations" id="newSmartReservations" hidden>
+                <header><button class="new-pin-button" id="newSmartReservationsBack" type="button" aria-label="家電ボタンへ戻る"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m20 7-9 9 9 9"/></svg></button><div><span class="new-eyebrow">APPLIANCE SCHEDULE</span><h3>家電操作の予約</h3></div><button class="new-pin-button" id="newSmartReservationsRefresh" type="button" aria-label="家電予約を同期"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M26 12a11 11 0 0 0-19-4L4 12M4 6v6h6M6 20a11 11 0 0 0 19 4l3-4M28 26v-6h-6"/></svg></button></header>
+                <p id="newSmartReservationsStatus" class="new-smart-reservations-status" role="status"></p>
+                <div id="newSmartReservationsRows" class="new-smart-reservations-rows"></div>
+                <p class="new-smart-reservations-note">実行は予約を作った端末が担当します。取り消しは次回通信で相手に届きます。画面を閉じた端末の予約は実行されません。</p>
+              </div>
+              <div class="new-smart-editor" id="newSmartEditor" hidden>
+                <h3 id="newSmartEditorTitle">操作ボタンを追加</h3>
+                <label><span>表示名</span><input id="newSmartLabel" type="text" maxlength="30" placeholder="照明" /></label>
+                <label><span>操作</span><select id="newSmartAction"></select></label>
+                <div class="nature-icon-field"><span>アイコン</span><select id="newSmartIcon" aria-label="操作ボタンのアイコン"></select></div>
+                <div class="nature-icon-field"><span>アイコン右上に添える記号</span><select id="newSmartBadge" aria-label="操作ボタンの右上アイコン"></select></div>
+                <p id="newSmartEditorStatus" role="status"></p>
+                <div class="new-smart-editor-actions"><button id="newSmartCancel" type="button">キャンセル</button><button id="newSmartSave" type="button">保存</button></div>
+              </div>
+            </section>
+
+            <button class="new-timer-dismiss-layer" id="newTimerDismissLayer" type="button" hidden aria-label="予約画面を閉じる"></button>
+            <section class="new-timer-sheet new-rect-panel" id="newTimerSheet" hidden role="dialog" aria-modal="true" aria-labelledby="newTimerTitle">
+              <div class="new-timer-handle" aria-hidden="true"></div>
+              <header><div><span class="new-eyebrow">SCHEDULE ACTION</span><h2 id="newTimerTitle">操作を予約</h2></div><button id="newTimerClose" class="new-garbage-close" type="button" aria-label="予約画面を閉じる"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 8 24 24M24 8 8 24"/></svg></button></header>
+              <div class="new-timer-presets" id="newTimerPresets"></div>
+              <div class="new-timer-custom"><label>カスタム <input id="newTimerCustomMinutes" type="number" min="1" max="720" step="1" inputmode="numeric" placeholder="分数" /> 分後</label><button id="newTimerCustomSet" type="button">予約する</button></div>
+              <div class="new-timer-pending" id="newTimerPending"></div>
+              <p class="new-timer-note">サイネージを閉じるか他のアプリへ切り替えると、予約は取り消されます。</p>
+            </section>
+            <div class="new-smart-toast" id="newSmartToast" hidden role="status"></div>
+            <div class="new-home-smart-error" id="newHomeSmartError" hidden role="status"></div>
+
+            <button class="new-clock-block new-tap-area" id="newClockTap" type="button" aria-label="時刻表と予定を表示">
+              <span class="new-clock-line new-number"><span id="newClockHour">--</span><span class="new-clock-separator">:</span><span id="newClockMinute">--</span></span>
+              <span id="newSeconds" class="new-seconds new-number">--</span>
+              <span class="new-date-line"><span id="newDate" class="new-number">--/--</span><span id="newWeekday">---</span></span>
+            </button>
+            <div class="new-home-agenda" id="newHomeAgenda" hidden aria-label="今日の予定">
+              <div id="newHomeAgendaList" class="new-home-agenda-list"></div>
+            </div>
+          </section>
+
+          <section class="new-page new-commute-page" data-page="commute" aria-label="時刻表と本日の予定" aria-hidden="true">
+            <button class="edge-nav edge-nav-right" data-new-home type="button" aria-label="ホームに戻る">
+              <span class="material-symbols-outlined" aria-hidden="true">keyboard_double_arrow_right</span>
+            </button>
+            <button class="new-home-button" data-new-home type="button" aria-label="ホームに戻る">
+              <span class="material-symbols-outlined" aria-hidden="true">home</span>
+            </button>
+            <button class="new-pin-button" data-pin-view type="button" aria-label="この画面を固定" aria-pressed="false">
+              <span class="material-symbols-outlined" aria-hidden="true">push_pin</span>
+            </button>
+            <header class="new-page-header">
+              <div><span class="new-eyebrow">TSUKUBA EXPRESS</span><h2>守谷駅 上り</h2></div>
+              <span id="newTrainDayType" class="new-day-type">平日</span>
+              <button class="new-commute-agenda" id="newCommuteAgenda" data-open-today-schedule type="button" hidden aria-label="今日の予定一覧を表示">
+                <span class="new-commute-agenda-label">TODAY’S SCHEDULE</span>
+                <div class="new-event-title"><span id="newCommuteAgendaText" class="new-event-title-text">予定はありません</span></div>
+              </button>
+            </header>
+            <div class="new-commute-grid">
+              <section class="new-train-board new-rect-panel" aria-label="次の電車">
+                <div class="new-train-slide-track">
+                  <div class="new-train-pane">
+                    <div class="new-section-caption"><span>秋葉原方面</span><span>15分以内は赤表示</span></div>
+                    <ol id="newTrains" class="new-train-list" aria-live="polite"></ol>
+                  </div>
+                  <div class="new-train-pane new-train-detail-pane" aria-label="選択した列車の停車駅">
+                    <header class="new-train-detail-inline-head"><button class="new-train-back" id="newTrainDetailClose" type="button" aria-label="時刻表へ戻る"><span class="material-symbols-outlined" aria-hidden="true">chevron_left</span></button><h3 id="newTrainDetailTitle">列車を選択</h3></header>
+                    <ol id="newTrainDetailStops" class="new-train-detail-stops"></ol>
+                    <p class="new-train-detail-note">着時刻の掲載がない駅は、公式の発時刻を表示しています。</p>
+                  </div>
+                </div>
+              </section>
+              <div class="new-calendar-column" id="newEventCalendarColumn">
+                <section class="new-calendar-panel new-rect-panel" aria-labelledby="newTodayHeading">
+                  <h3 id="newTodayHeading">今日の予定</h3>
+                  <ol id="newTodayEvents" class="new-event-list"></ol>
+                </section>
+                <section class="new-calendar-panel new-rect-panel" aria-labelledby="newTomorrowHeading">
+                  <h3 id="newTomorrowHeading">明日の予定</h3>
+                  <ol id="newTomorrowEvents" class="new-event-list"></ol>
+                </section>
+              </div>
+              <section class="new-month-calendar new-rect-panel" id="newMonthCalendar" aria-label="今月のカレンダー" hidden></section>
+            </div>
+            <div class="new-compact-clock"><span id="newCommuteTime" class="new-number">--:--</span><span id="newCommuteSeconds" class="new-compact-seconds new-number">--</span><span id="newCommuteDate" class="new-number">--/--</span></div>
+          </section>
+
+          <section class="new-page new-weather-page" data-page="weather" aria-label="天気の詳細" aria-hidden="true">
+            <button class="edge-nav edge-nav-left" data-new-home type="button" aria-label="ホームに戻る">
+              <span class="material-symbols-outlined" aria-hidden="true">keyboard_double_arrow_left</span>
+            </button>
+            <button class="new-home-button" data-new-home type="button" aria-label="ホームに戻る">
+              <span class="material-symbols-outlined" aria-hidden="true">home</span>
+            </button>
+            <button class="new-pin-button" data-pin-view type="button" aria-label="この画面を固定" aria-pressed="false">
+              <span class="material-symbols-outlined" aria-hidden="true">push_pin</span>
+            </button>
+            <header class="new-weather-detail-head">
+              <span id="newWeatherDetailIcon" class="material-symbols-outlined new-weather-detail-icon" aria-hidden="true">partly_cloudy_day</span>
+              <div><span id="newWeatherDetailLocation" class="new-location">茨城県 守谷市</span><h2 id="newWeatherDetailSummary">天気を取得中</h2></div>
+              <span id="newWeatherDetailTemp" class="new-weather-detail-temp new-number">--°</span>
+              <div class="new-weather-detail-facts"><span id="newWeatherDetailDaily" class="new-number">--/--°</span><span><span class="material-symbols-outlined" aria-hidden="true">water_drop</span><span id="newWeatherDetailRain" class="new-number">--%</span></span></div>
+            </header>
+            <section class="new-hourly-board new-rect-panel" aria-labelledby="newHourlyHeading">
+              <div class="new-board-heading"><h3 id="newHourlyHeading">時間ごとの予報</h3><span id="newWeatherUpdated">--:-- 更新</span></div>
+              <div id="newHourlyForecast" class="new-hourly-list"></div>
+            </section>
+            <section class="new-daily-board new-rect-panel" aria-labelledby="newDailyHeading">
+              <div class="new-board-heading"><h3 id="newDailyHeading">週間予報</h3></div>
+              <div id="newDailyForecast" class="new-daily-list"></div>
+            </section>
+            <div class="new-compact-clock new-weather-clock"><span id="newWeatherTime" class="new-number">--:--</span><span id="newWeatherSeconds" class="new-compact-seconds new-number">--</span><span id="newWeatherDate" class="new-number">--/--</span></div>
+          </section>
+        </div>
+        <div class="new-floating-layer" id="newFloatingLayer"></div>
+        <button id="newSettingsButton" class="settings-button new-settings-button" type="button" aria-label="設定を開く" aria-expanded="false">
+          <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+        </button>
+      </main>
+
+      <div id="startupVeil" class="startup-veil" aria-hidden="true">
+        <span class="startup-mark">MORIYA</span>
+        <span id="startupTime" class="startup-time">--:--</span>
+        <span class="startup-line"></span>
+      </div>
+    </div>
+
+    <div id="calendarDateDialog" class="date-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="calendarDateDialogTitle">
+      <div class="date-dialog-panel">
+        <div class="date-dialog-head">
+          <div>
+            <p class="kicker">Calendar</p>
+            <h2 id="calendarDateDialogTitle">表示する日付</h2>
+          </div>
+          <button id="calendarDateClose" class="icon-button" type="button" aria-label="閉じる">×</button>
+        </div>
+        <label class="date-picker-label">
+          <span>日付を選択</span>
+          <input id="calendarDateInput" type="date" />
+        </label>
+        <div class="date-dialog-actions">
+          <button id="calendarTodayButton" class="subtle-button" type="button">今日に戻す</button>
+          <button id="calendarDateApply" class="primary" type="button">この日を表示</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="settingsDialog" class="settings-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <form id="settingsForm">
+        <div class="dialog-head">
+          <div>
+            <p class="kicker">Settings</p>
+            <h2 id="settingsTitle">表示設定</h2>
+          </div>
+          <button class="icon-button" value="cancel" type="button" id="settingsClose" aria-label="閉じる">×</button>
+        </div>
+
+        <section class="settings-section settings-section-primary" aria-labelledby="displaySettingsTitle">
+          <h3 id="displaySettingsTitle">表示モード</h3>
+          <label>
+            <span>画面デザイン</span>
+            <select id="displayMode">
+              <option value="new">ニュー</option>
+              <option value="classic">クラシック</option>
+            </select>
+          </label>
+          <label>
+            <span>画面サイズ</span>
+            <select id="displayProfile">
+              <option value="standard">標準（8インチ）</option>
+              <option value="tablet10">10.1インチ・1920×1200</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="settings-section" aria-labelledby="calendarSettingsTitle">
+          <h3 id="calendarSettingsTitle">カレンダー・予定</h3>
+          <label>
+            <span>Googleカレンダー iCal URL</span>
+            <input id="icalUrl" type="url" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics" />
+          </label>
+          <label class="checkbox-row schedule-visibility-setting">
+            <input id="hideSchedule" type="checkbox" />
+            <span>予定を表示しない</span>
+          </label>
+          <label class="checkbox-row">
+            <input id="garbageHomeEnabled" type="checkbox" />
+            <span>ホーム画面に直近のごみ収集予定を表示</span>
+          </label>
+        </section>
+
+        <section class="settings-section" aria-labelledby="weatherSettingsTitle">
+          <h3 id="weatherSettingsTitle">天気</h3>
+          <label>
+            <span>天気の地点</span>
+            <div class="inline-fields">
+              <input id="weatherQuery" type="search" placeholder="茨城県 守谷市" />
+              <button id="searchWeather" type="button">検索</button>
+            </div>
+          </label>
+          <label>
+            <span>天気パネルの下段表示</span>
+            <select id="forecastMode">
+              <option value="hourly">時間ごとの天気</option>
+              <option value="daily">明日以降の週間天気</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="settings-section" aria-labelledby="homeInfoSettingsTitle">
+          <h3 id="homeInfoSettingsTitle">ホーム画面の情報・操作</h3>
+          <label>
+            <span>中央左の表示</span>
+            <select id="homeInfoMode">
+              <option value="none">表示なし</option>
+              <option value="market">為替と株</option>
+              <option value="remo">室温・家電操作</option>
+              <option value="hybrid">室温・家電1操作・相場2銘柄</option>
+            </select>
+          </label>
+          <div id="marketSettingsFields" class="market-settings-fields">
+            <div class="market-setting-row" id="marketSettingRow1">
+              <label class="market-preset-field"><span>1つ目の候補</span><select id="marketPreset1" aria-label="1つ目の銘柄候補"></select></label>
+              <label><span>1つ目の表示名</span><input id="marketLabel1" type="text" maxlength="80" placeholder="USD / JPY" /></label>
+              <label><span>銘柄コード</span><input id="marketSymbol1" type="text" maxlength="24" placeholder="JPY=X" /></label>
+            </div>
+            <div class="market-setting-row" id="marketSettingRow2">
+              <label class="market-preset-field"><span>2つ目の候補</span><select id="marketPreset2" aria-label="2つ目の銘柄候補"></select></label>
+              <label><span>2つ目の表示名</span><input id="marketLabel2" type="text" maxlength="80" placeholder="S&amp;P 500" /></label>
+              <label><span>銘柄コード</span><input id="marketSymbol2" type="text" maxlength="24" placeholder="^GSPC" /></label>
+            </div>
+            <div class="market-setting-row" id="marketSettingRow3">
+              <label><span>3つ目の候補</span><select id="marketPreset3" aria-label="3つ目の銘柄候補"></select></label>
+              <label><span>3つ目の表示名</span><input id="marketLabel3" type="text" maxlength="80" placeholder="日経平均" /></label>
+              <label><span>銘柄コード</span><input id="marketSymbol3" type="text" maxlength="24" placeholder="^N225" /></label>
+            </div>
+            <small>候補から選ぶか、Yahoo Financeの銘柄コードを直接指定できます。「MAXIS 全世界株式」は、日本市場で売買できるオルカン連動ETF（2559）です。</small>
+          </div>
+          <div id="natureRemoSettingsFields" class="nature-remo-settings-fields" hidden>
+            <label><span>Nature Remo アクセストークン</span><input id="natureRemoToken" type="password" autocomplete="off" spellcheck="false" placeholder="home.nature.global で発行したトークン" /></label>
+            <small>発行画面のトークン本体だけを貼り付けてください。前後のかぎ括弧、Bearer、コピー時の改行は自動的に除去します。</small>
+            <div class="inline-fields nature-remo-connect-row">
+              <button id="natureRemoConnect" type="button">接続して家電を読み込む</button>
+              <span id="natureRemoStatus" role="status">トークンを入力してください</span>
+            </div>
+            <label><span>室温を表示するRemo</span><select id="natureTemperatureDevice"><option value="">自動（最新のセンサー）</option></select></label>
+            <details class="nature-scene-settings" id="switchBotSettings">
+              <summary>SwitchBotをサイネージへ直接接続</summary>
+              <p class="dialog-note">SwitchBotアプリのDeveloper Optionsで取得したTokenとSecret Keyをこの端末に保存します。</p>
+              <label><span>Token</span><input id="switchBotToken" type="password" autocomplete="off" spellcheck="false" /></label>
+              <label><span>Secret Key</span><input id="switchBotSecret" type="password" autocomplete="off" spellcheck="false" /></label>
+              <div class="inline-fields nature-remo-connect-row"><button id="switchBotConnect" type="button">機器を直接読み込む</button><span id="switchBotStatus" role="status">未設定</span></div>
+            </details>
+            <details class="nature-scene-settings" id="smartLifeSettings">
+              <summary>Smart LifeのGosund WP6をサイネージへ直接接続</summary>
+              <p class="dialog-note">Tuya Developer PlatformでCloud Projectを作成し、Smart Lifeアカウントをリンクしてから入力します。</p>
+              <label><span>データセンター</span><select id="tuyaEndpoint"><option value="https://openapi-ueaz.tuyaus.com">Eastern America（現在の日本）</option><option value="https://openapi.tuyaus.com">Western America（旧日本アカウント）</option><option value="https://openapi.tuyaeu.com">Central Europe</option><option value="https://openapi-weaz.tuyaeu.com">Western Europe</option><option value="https://openapi.tuyain.com">India</option><option value="https://openapi-sg.iotbing.com">Singapore</option><option value="https://openapi.tuyacn.com">China</option></select></label>
+              <div class="inline-fields"><label><span>Access ID</span><input id="tuyaAccessId" type="password" autocomplete="off" /></label><label><span>Access Secret</span><input id="tuyaAccessSecret" type="password" autocomplete="off" /></label></div>
+              <div class="inline-fields"><label><span>Smart Life UID（任意）</span><input id="tuyaUserId" type="text" autocomplete="off" /></label><label><span>WP6 Device ID</span><input id="tuyaDeviceIds" type="text" autocomplete="off" placeholder="複数はカンマ区切り" /></label></div>
+              <div class="inline-fields nature-remo-connect-row"><button id="tuyaConnect" type="button">WP6を直接読み込む</button><span id="tuyaStatus" role="status">未設定</span></div>
+            </details>
+            <details class="nature-scene-settings" id="homeActionSettings">
+              <summary>ホーム画面の家電ボタンを設定</summary>
+              <label id="natureActionCountField"><span>ホームに表示する家電ボタン数</span><select id="natureActionCount"><option value="1">1個</option><option value="2">2個</option><option value="3">3個</option><option value="4">4個</option></select></label>
+            <div class="nature-action-settings" aria-label="ホーム画面の家電操作ボタン">
+              <div class="nature-action-setting" data-nature-action-row="1"><label><span>ボタン1の表示名</span><input id="natureLabel1" type="text" maxlength="30" placeholder="照明" /></label><label><span>操作</span><select id="natureAction1"><option value="">接続後に選択</option></select></label><div class="nature-icon-field"><span>アイコン</span><select id="natureIcon1" data-nature-icon aria-label="ボタン1のアイコン"></select></div><div class="nature-icon-field"><span>右上の小アイコン</span><select id="natureBadge1" data-nature-badge aria-label="ボタン1の右上アイコン"></select></div></div>
+              <div class="nature-action-setting" data-nature-action-row="2"><label><span>ボタン2の表示名</span><input id="natureLabel2" type="text" maxlength="30" placeholder="テレビ" /></label><label><span>操作</span><select id="natureAction2"><option value="">接続後に選択</option></select></label><div class="nature-icon-field"><span>アイコン</span><select id="natureIcon2" data-nature-icon aria-label="ボタン2のアイコン"></select></div><div class="nature-icon-field"><span>右上の小アイコン</span><select id="natureBadge2" data-nature-badge aria-label="ボタン2の右上アイコン"></select></div></div>
+              <div class="nature-action-setting" data-nature-action-row="3"><label><span>ボタン3の表示名</span><input id="natureLabel3" type="text" maxlength="30" placeholder="エアコン" /></label><label><span>操作</span><select id="natureAction3"><option value="">接続後に選択</option></select></label><div class="nature-icon-field"><span>アイコン</span><select id="natureIcon3" data-nature-icon aria-label="ボタン3のアイコン"></select></div><div class="nature-icon-field"><span>右上の小アイコン</span><select id="natureBadge3" data-nature-badge aria-label="ボタン3の右上アイコン"></select></div></div>
+              <div class="nature-action-setting" data-nature-action-row="4"><label><span>ボタン4の表示名</span><input id="natureLabel4" type="text" maxlength="30" placeholder="シーン" /></label><label><span>操作</span><select id="natureAction4"><option value="">接続後に選択</option></select></label><div class="nature-icon-field"><span>アイコン</span><select id="natureIcon4" data-nature-icon aria-label="ボタン4のアイコン"></select></div><div class="nature-icon-field"><span>右上の小アイコン</span><select id="natureBadge4" data-nature-badge aria-label="ボタン4の右上アイコン"></select></div></div>
+            </div>
+            <small>Nature Remo・SwitchBot・Smart Lifeを同じ「操作」一覧から選び、最大4つまで横並びにできます。</small>
+            </details>
+            <details class="nature-scene-settings">
+              <summary>サイネージ内シーン</summary>
+              <p class="dialog-note">家電操作と待ち時間を順番に実行します。上下ボタンで順序を入れ替えられます。</p>
+              <div id="natureSceneList" class="nature-scene-list"></div>
+              <button id="addNatureScene" class="subtle-button" type="button">シーンを追加</button>
+            </details>
+            <small>トークンはこの端末内の設定にのみ保存します。室温・家電一覧は5分間隔で更新します。公式Cloud APIではNature Remoアプリのシーンは公開されていないため、登録済み家電・信号を選択できます。</small>
+          </div>
+        </section>
+
+        <section class="settings-section lan-sync-settings" id="lanSyncSettings" aria-labelledby="lanSyncTitle" hidden>
+          <h3 id="lanSyncTitle">2台のスマートホーム設定を同期</h3>
+          <p class="dialog-note">同じWi-Fiの2台でアプリを開いている間、設定変更と操作予約を同期します。予約を実行するのは作成した端末だけです。</p>
+          <p class="dialog-note">先に1台目で「この端末のQR・コードを表示」を押します。2台目でQRを読み取るか、機器を探して、1台目に表示されたコードを入力してください。</p>
+          <p id="lanSyncStatus" class="dialog-note" role="status">接続を準備中</p>
+          <p id="lanSyncLocalAddress" class="dialog-note"></p>
+          <div class="inline-fields"><button id="lanSyncShowQr" type="button">この端末のQR・コードを表示</button><button id="lanSyncScanQr" type="button">相手のQRを読み取る</button><button id="lanSyncDiscover" type="button">同じWi-Fiの機器を探す</button></div>
+          <div id="lanSyncQrPanel" class="lan-sync-qr-panel" hidden><p>このコードを2台目の「相手に表示されたコード」へ入力</p><strong id="lanSyncQrCode" class="lan-sync-code"></strong><img id="lanSyncQrImage" alt="この端末のペアリング用QRコード" hidden /><small id="lanSyncQrAddress"></small><small id="lanSyncQrWarning"></small><small>コードの有効期限は5分です。両端末でアプリを開いたままにしてください。</small></div>
+          <div id="lanSyncScanner" class="lan-sync-scanner" hidden><video id="lanSyncCamera" autoplay muted playsinline></video><button id="lanSyncStopScan" type="button">読み取りをやめる</button></div>
+          <div id="lanSyncDiscovered" class="lan-sync-discovered" aria-live="polite"></div>
+          <div class="inline-fields"><label><span>1台目のIPアドレス</span><input id="lanSyncHost" type="text" inputmode="decimal" placeholder="192.168.1.10 または 100.x.x.x" /></label><label><span>1台目のポート</span><input id="lanSyncPort" type="number" min="1" max="65535" placeholder="41387" /></label><label><span>1台目に表示された4桁コード</span><input id="lanSyncCode" type="text" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" spellcheck="false" placeholder="0123" /></label><button id="lanSyncPair" type="button">ペアリング</button></div>
+          <p class="dialog-note">4桁コードは5分間有効・試行は5回までです。信頼できるネットワークで、両端末を同じ新しいAPKに更新して接続してください。</p>
+          <p class="dialog-note">別のWi-Fiから接続する場合は、両端末で同じTailscaleネットワークに接続し、1台目の100.x.x.xのIP・ポート・コードを2台目に手入力してください。機器検索は同一Wi-Fi専用です。</p>
+          <label class="lan-sync-mode"><span>スマートホーム設定の同期方法</span><select id="lanSyncMode"><option value="manual">手動で同期先を選ぶ（推奨）</option><option value="auto">変更時に自動で同期</option><option value="off">設定は同期しない</option></select></label>
+          <p class="dialog-note">手動では、ペアリング後に下の端末ごとに同期方向を選びます。自動同期は両端末で選んだときだけ働きます。「設定は同期しない」でも予約操作の共有・取り消しは利用できます。</p>
+          <div id="lanSyncPeers" class="lan-sync-peers"></div>
+          <button id="lanSyncRefresh" type="button">今すぐ同期</button>
+        </section>
+
+        <section class="settings-section" aria-labelledby="backgroundSettingsTitle">
+          <h3 id="backgroundSettingsTitle">背景</h3>
+          <label class="custom-background-setting">
+            <span>自分の背景画像（最大5枚）</span>
+            <div class="inline-fields">
+              <input id="backgroundImage" type="file" accept="image/*" multiple />
+              <button id="clearBackgroundImage" type="button">すべて解除</button>
+            </div>
+            <small>複数選択した画像は、下の間隔で順番に切り替わります。</small>
+          </label>
+          <div id="customBackgroundList" class="custom-background-list" aria-label="選択中のカスタム背景" hidden></div>
+          <label>
+            <span>背景スライドショーの間隔</span>
+            <select id="backgroundSlideshowSeconds">
+              <option value="30">30秒</option>
+              <option value="60">1分</option>
+              <option value="120">2分</option>
+              <option value="180">3分</option>
+              <option value="300">5分</option>
+              <option value="600">10分</option>
+            </select>
+          </label>
+
+          <details class="background-theme-settings">
+            <summary>天気ごとの背景写真（複数選択可）</summary>
+            <input id="sunnyBackgroundTheme" type="hidden" />
+            <input id="cloudyBackgroundTheme" type="hidden" />
+            <input id="rainBackgroundTheme" type="hidden" />
+            <input id="nightClearBackgroundTheme" type="hidden" />
+            <input id="nightCloudyBackgroundTheme" type="hidden" />
+            <input id="nightRainBackgroundTheme" type="hidden" />
+            <div class="background-sample-list" id="backgroundSampleList" aria-label="背景写真のサンプル"></div>
+          </details>
+
+          <div class="video-background-settings">
+            <label class="checkbox-row local-video-toggle">
+              <input id="localVideoBeta" type="checkbox" />
+              <span><b>BETA</b> 端末の動画を背景にする</span>
+            </label>
+            <div id="localVideoControls" class="local-video-controls" hidden>
+              <label class="custom-video-setting">
+                <span>背景動画（端末から1本選択）</span>
+                <div class="inline-fields">
+                  <input id="localVideoFile" type="file" accept="video/*" />
+                  <button id="clearLocalVideo" type="button">動画を解除</button>
+                </div>
+                <small id="localVideoStatus">動画は選択されていません。</small>
+              </label>
+              <p class="dialog-note local-video-note">選んだ動画はこの端末内に保存し、無音でループ再生します。設定画面・画面非表示中・下記の省電力時間帯では停止して背景写真に戻ります。</p>
+              <details class="live-power-settings">
+                <summary>映像を停止する時間帯（省電力）</summary>
+                <p class="dialog-note">曜日ごとに複数登録できます。指定時間中は同じ天候の背景写真へ自動的に切り替わります。</p>
+                <div class="live-power-copy">
+                  <select id="livePowerCopyDay" aria-label="コピー元の曜日">
+                    <option value="mon">月曜日</option><option value="tue">火曜日</option><option value="wed">水曜日</option>
+                    <option value="thu">木曜日</option><option value="fri">金曜日</option><option value="sat">土曜日</option><option value="sun">日曜日</option>
+                  </select>
+                  <button id="copyLivePowerToAll" type="button">この曜日の時間帯を全曜日に適用</button>
+                </div>
+                <div id="livePowerSchedule" class="live-power-schedule"></div>
+              </details>
+            </div>
+          </div>
+        </section>
+
+        <details class="settings-section collapsible-settings timetable-settings">
+          <summary>時刻表の表示設定</summary>
+          <div class="settings-grid">
+            <label>
+              <span>何分後以降の電車を表示</span>
+              <input id="trainOffset" type="number" min="0" max="60" step="1" />
+            </label>
+            <label>
+              <span>オレンジで目立たせる分数以下</span>
+              <input id="orangeMinutes" type="number" min="0" max="120" step="1" />
+            </label>
+            <label>
+              <span>オレンジ色</span>
+              <input id="orangeColor" type="color" />
+            </label>
+            <label>
+              <span>赤で目立たせる分数以下</span>
+              <input id="redMinutes" type="number" min="0" max="120" step="1" />
+            </label>
+            <label>
+              <span>赤色</span>
+              <input id="redColor" type="color" />
+            </label>
+          </div>
+          <button id="resetTimetableSettings" class="subtle-button" type="button">時刻表設定を初期値に戻す</button>
+        </details>
+
+        <details class="settings-section collapsible-settings font-settings">
+          <summary>フォント設定・プレビュー</summary>
+          <div class="font-setting-list">
+            <div class="font-setting-row">
+              <label><span>全体フォント</span><select id="fontSelect"></select></label>
+              <label><span>ウェイト</span><select id="fontWeightSelect"></select></label>
+            </div>
+            <div class="font-setting-row">
+              <label><span>発車標・天気数字フォント</span><select id="numberFontSelect"></select></label>
+              <label><span>ウェイト</span><select id="numberFontWeightSelect"></select></label>
+            </div>
+            <div class="font-setting-row">
+              <label><span>時計・日付フォント</span><select id="clockFontSelect"></select></label>
+              <label><span>ウェイト</span><select id="clockFontWeightSelect"></select></label>
+            </div>
+          </div>
+          <div class="button-row">
+            <button id="syncNumberFont" class="subtle-button" type="button">数字・時計フォントを全体と同じにする</button>
+            <button id="loadLocalFonts" class="subtle-button" type="button">PC内フォントの取得を試す</button>
+          </div>
+          <div class="font-preview" aria-label="フォントプレビュー">
+            <div><span>全体フォント</span><p id="bodyFontPreview">守谷駅 上り / 今日の予定 / 晴れ</p></div>
+            <div><span>発車標・天気数字フォント</span><p id="numberFontPreview">14:08 31° 17分後</p></div>
+            <div><span>時計・日付フォント</span><p id="clockFontPreview">14:08 6/1 月</p></div>
+          </div>
+        </details>
+
+        <section class="settings-section" aria-labelledby="motionSettingsTitle">
+          <h3 id="motionSettingsTitle">アニメーション・ガラス効果</h3>
+          <div class="settings-grid">
+            <label>
+              <span>アニメーション</span>
+              <select id="animationMode">
+                <option value="off">アニメーションオフ</option>
+                <option value="light">軽量アニメーション</option>
+                <option value="rich">リッチなアニメーション</option>
+              </select>
+            </label>
+            <label class="checkbox-row window-blur-toggle">
+              <input id="windowOnlyBlur" type="checkbox" />
+              <span>ウィンドウのみにブラーをかける</span>
+            </label>
+            <div class="window-blur-controls" id="windowBlurControls">
+              <label class="rich-blur-setting">
+                <span>ブラーの強さ <output id="richBlurValue" for="richBlur">23px</output></span>
+                <input id="richBlur" type="range" min="0" max="64" step="1" value="23" />
+              </label>
+              <label class="rich-blur-setting rich-transparency-setting">
+                <span>ガラスの透明度 <output id="richTransparencyValue" for="richTransparency">87%</output></span>
+                <input id="richTransparency" type="range" min="80" max="100" step="1" value="87" />
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <div class="native-panel" id="androidAppSettings" hidden>
+          <p class="kicker">Android App</p>
+          <p>現在のバージョン <strong id="appCurrentVersion">確認中</strong></p>
+          <div class="button-row"><button id="checkAppUpdate" type="button">最新バージョンを確認</button><button id="downloadAppUpdate" type="button" hidden>最新バージョンをダウンロード</button></div>
+          <p id="appUpdateStatus" class="dialog-note" role="status">更新確認を準備中</p>
+          <details><summary>更新の接続設定</summary><label><span>更新情報URL（公開されたlatest.json）</span><input id="appUpdateManifestUrl" type="url" autocomplete="off" placeholder="https://raw.githubusercontent.com/ユーザー名/リポジトリ/main/latest.json" /></label><button id="saveAppUpdateSource" type="button">更新情報URLを保存</button><p class="dialog-note">ここに家電のトークンやGitHubのトークンを入力する必要はありません。APKが非公開の場合、ダウンロード時にブラウザでGitHubへログインします。</p></details>
+          <label class="checkbox-row">
+            <input id="keepAwake" type="checkbox" />
+            <span>Androidアプリで画面をスリープさせない</span>
+          </label>
+        </div>
+
+        <details class="settings-section collapsible-settings" id="githubSyncSettings">
+          <summary>GitHub同期・暗号化バックアップ（Android／Web共通）</summary>
+          <p class="dialog-note">非公開リポジトリと、そのリポジトリのみのContents読み書き権限を持つFine-grained tokenを使用します。APKにはトークンを埋め込みません。WebはHTTPSまたはlocalhostで開いてください。</p>
+          <label><span>非公開リポジトリ（owner/repository）</span><input id="githubSyncRepo" type="text" placeholder="tyanken1-tech/moriya-signage" autocomplete="off" /></label>
+          <label><span>GitHubアクセストークン</span><input id="githubSyncToken" type="password" autocomplete="off" spellcheck="false" /></label>
+          <label><span>暗号鍵（初回は空欄で自動作成）</span><input id="githubSyncKey" type="password" autocomplete="off" spellcheck="false" /></label>
+          <div class="github-sync-fields">
+            <label><span>この端末の役割</span><select id="githubSyncRole"><option value="parent">親機（設定を送信）</option><option value="child">子機（親機の設定を受信）</option></select></label>
+            <label><span>自動同期する範囲</span><select id="githubSyncScope"><option value="shared">スマートホーム・iCal・銘柄設定</option><option value="smartHome">スマートホームのみ</option><option value="all">全設定（画面サイズ・端末設定・デバッグを除く）</option><option value="schedules">家電予約のみ（通常設定は同期しない）</option></select></label>
+            <label><span>子機で設定を変更した場合</span><select id="githubSyncConflictMode"><option value="partial">変更した項目・操作ボタンだけ保護（推奨）</option><option value="whole">同期対象の設定全体を保護（従来方式）</option></select></label>
+            <label><span>この端末の名前（予約一覧に表示）</span><input id="githubSyncDeviceName" type="text" maxlength="40" placeholder="リビングのタブレット" /></label>
+            <label><span>更新確認の間隔</span><select id="githubSyncInterval"><option value="30">30秒</option><option value="60" selected>1分（推奨）</option><option value="120">2分</option><option value="300">5分</option></select></label>
+          </div>
+          <label class="checkbox-row"><input id="githubSyncSchedules" type="checkbox" checked /><span>家電予約も全端末で共有・取消できるようにする</span></label>
+          <p class="dialog-note">通常設定は親機から子機へ配信します。子機で変更した項目は、親機の設定と一致するか「親機の設定を取得」を行うまで保護します。家電予約は親機・子機に関係なく共有し、実行は作成した端末だけが担当します。予約の変更時はすぐ送信し、他端末では選択した間隔で確認します。</p>
+          <label class="checkbox-row"><input id="githubSyncEnabled" type="checkbox" checked /><span>動作中に自動同期する（OFFでもバックアップは利用可）</span></label>
+          <div class="button-row"><button id="githubSyncConnect" type="button">接続設定を保存・接続</button><button id="githubSyncPull" type="button">親機の設定を取得</button><button id="githubSyncTakeover" type="button">この端末を親機にする</button><button id="githubSyncDisconnect" type="button">接続を解除</button></div>
+          <p id="githubSyncStatus" class="dialog-note" role="status">未接続です。</p>
+          <details><summary>別端末を簡単に接続</summary>
+            <p class="dialog-note">接続コードとQRにはGitHubトークン・暗号鍵を含みます。信頼する自分の端末だけに渡してください。紛失すると履歴を復号できないため、安全な場所にも保管してください。</p>
+            <div class="button-row"><button id="githubSyncInvite" type="button">子機用の接続コード・QRを表示</button><button id="githubSyncCopy" type="button">コードをコピー</button></div>
+            <canvas id="githubSyncQr" width="320" height="320" hidden aria-label="子機接続用QR"></canvas>
+            <label><span>接続コード（別端末で貼り付け）</span><textarea id="githubSyncInviteText" rows="3" autocomplete="off" spellcheck="false"></textarea></label>
+            <div class="button-row"><button id="githubSyncJoin" type="button">コードから子機として接続</button><button id="githubSyncScan" type="button">QRをカメラで読み取る</button><button id="githubSyncStopScan" type="button" hidden>カメラを閉じる</button></div>
+            <video id="githubSyncCamera" playsinline muted hidden style="max-width:100%;max-height:260px"></video>
+          </details>
+        </details>
+        <details class="settings-section collapsible-settings backup-settings">
+          <summary>設定のバックアップ・復元</summary>
+          <p class="dialog-note">保存済みの設定を出力します。「すべて」にはiCal URL・家電とGitHubのアクセストークン・GitHubの暗号鍵と接続設定・背景画像・背景動画を含みます。この文章は暗号化されていないため、他人に見せず安全に保管してください。「スマートホームのみ」にはGitHub接続情報を含みません。動画が大きい場合は文章も長くなります。</p>
+          <label><span>バックアップする範囲</span><select id="settingsBackupScope"><option value="all">すべての設定</option><option value="smartHome">スマートホームのみ</option></select></label>
+          <div class="button-row">
+            <button id="createSettingsBackup" type="button">バックアップ文章を作成</button>
+            <button id="copySettingsBackup" type="button">文章をコピー</button>
+          </div>
+          <label><span>バックアップ文章／復元する文章</span><textarea id="settingsBackupText" rows="5" spellcheck="false" autocomplete="off" placeholder="ここにバックアップ文章を貼り付け"></textarea></label>
+          <button id="restoreSettingsBackup" type="button">貼り付けた文章から復元</button>
+          <p id="settingsBackupStatus" class="dialog-note" role="status"></p>
+          <div id="githubBackupControls" hidden>
+            <hr />
+            <p class="dialog-note">GitHubには最新の暗号化バックアップ1件を上書き保存します。過去の履歴からも復元できます。iCal・APIトークン・背景画像を含み、端末の動画ファイルとGitHub接続情報は含みません。</p>
+            <div class="button-row"><button id="githubBackupUpload" type="button">選択した範囲を暗号化してGitHubに保存</button><button id="githubBackupRestore" type="button">最新バックアップから復元</button><button id="githubBackupHistory" type="button">過去の履歴を表示</button></div>
+            <label><span>復元する履歴</span><select id="githubBackupVersions" aria-label="復元する履歴"></select></label>
+            <div class="button-row"><button id="githubBackupOlder" type="button" hidden>さらに古い履歴</button><button id="githubBackupRestoreVersion" type="button">選択した履歴から復元</button></div>
+          </div>
+        </details>
+
+        <details class="debug-panel">
+          <summary>デバッグモード</summary>
+          <label class="checkbox-row">
+            <input id="debugEnabled" type="checkbox" />
+            <span>デバッグ値を使う</span>
+          </label>
+          <div class="settings-grid">
+            <label>
+              <span>日時</span>
+              <input id="debugDateTime" type="datetime-local" />
+            </label>
+            <label>
+              <span>天気コード</span>
+              <select id="debugWeatherCode">
+                <option value="">自動</option>
+                <option value="0">快晴</option>
+                <option value="1">晴れ</option>
+                <option value="2">薄曇り</option>
+                <option value="3">曇り</option>
+                <option value="61">雨</option>
+                <option value="80">にわか雨</option>
+                <option value="95">雷雨</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            <span>デバッグ気温</span>
+            <input id="debugTemperature" type="number" min="-20" max="45" step="1" placeholder="31" />
+          </label>
+          <section class="debug-events-editor" aria-labelledby="debugEventsHeading">
+            <div class="debug-events-head">
+              <span id="debugEventsHeading">今日の予定</span>
+              <button id="addDebugEvent" type="button">予定を追加</button>
+            </div>
+            <div id="debugEventsList" class="debug-events-list"></div>
+          </section>
+        </details>
+
+        <p id="settingsMessage" class="dialog-note">設定はこのブラウザに保存されます。</p>
+        <div class="dialog-actions">
+          <button id="resetSettings" type="button">リセット</button>
+          <button class="primary" value="default" type="submit">保存</button>
+        </div>
+      </form>
+    </div>
+
+    <script src="./data/display-theme.js"></script>
+    <script src="./data/tx-moriya-akihabara.js"></script>
+    <script src="./data/tx-moriya-arrivals.js"></script>
+  <script src="./data/moriya-garbage-calendar.js?v=20260914-1"></script>
+    <script src="./app.js?v=20261001-1"></script>
+  <script src="./local-video-background.js?v=20260925-1"></script>
+    <script src="./new-ui.js?v=20261001-1"></script>
+    <script src="./lan-sync.js?v=20260928-1"></script>
+    <script src="./github-sync-core.js?v=20260929-4"></script>
+    <script src="./github-sync.js?v=20260929-4"></script>
+    <script src="./app-update-core.js?v=20260928-1"></script>
+    <script src="./app-updates.js?v=20260928-1"></script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "守谷駅・ごみ収集",
+  "short_name": "守谷",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#14231b",
+  "background_color": "#14231b",
+  "icons": []
+}
