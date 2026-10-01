@@ -901,10 +901,10 @@ html[data-window-blur="off"] .viewport-shell.has-custom-bg .viewport-background 
 .new-train-departure-unit { margin-left: -9px; font-size: 18px; }
 .new-train-detail-service { font-size: 26px; font-weight: var(--font-main-weight, 700); }
 .new-train-detail-stops { flex: 1; min-height: 0; overflow: auto; margin: 0; padding: 10px 0 0; list-style: none; overscroll-behavior: contain; }
-.new-train-detail-stops li { display: grid; grid-template-columns: minmax(0,1fr) auto auto; align-items: baseline; column-gap: 7px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.1); font-size: 18px; }
+.new-train-detail-stops li { display: grid; grid-template-columns: minmax(0,1fr) 76px 76px; align-items: baseline; column-gap: 7px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.1); font-size: 18px; }
 .new-train-detail-stops li.is-key-station { color: #b8e5ed; font-weight: 700; }
-.new-train-detail-stops time { font-size: 22px; font-variant-numeric: tabular-nums; }
-.new-train-detail-stops small { color: rgba(255,255,255,.68); font-size: 12px; white-space: nowrap; }
+.new-train-detail-stops time { justify-self: stretch; text-align: left; font-size: 22px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.new-train-detail-stops small { justify-self: stretch; text-align: right; color: rgba(255,255,255,.68); font-size: 12px; white-space: nowrap; }
 .new-train-detail-note { margin: 0; padding: 8px 0 0; color: rgba(255,255,255,.64); font-size: 11px; line-height: 1.4; }
 html[data-animation-mode="off"] .new-train-slide-track { transition: none; }
 

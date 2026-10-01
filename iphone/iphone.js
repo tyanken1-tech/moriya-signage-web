@@ -25,6 +25,21 @@
   let activeBackground = "";
   const closeTimers = new Map();
   let lastMinute = "";
+  let viewportFrame = 0;
+
+  // Safari standalone can retain a stale 100dvh after returning from the app switcher.
+  // Measure the visible area only on viewport changes, not in the clock loop.
+  function fitViewport() {
+    cancelAnimationFrame(viewportFrame);
+    viewportFrame = requestAnimationFrame(() => {
+      const height = window.visualViewport?.height || window.innerHeight;
+      if (height > 0) document.documentElement.style.setProperty("--app-height", `${Math.round(height)}px`);
+    });
+  }
+  fitViewport();
+  window.addEventListener("resize", fitViewport, { passive: true });
+  window.addEventListener("pageshow", fitViewport);
+  window.visualViewport?.addEventListener("resize", fitViewport, { passive: true });
 
   function now() { return debugAt ? new Date(debugAt[0] + Date.now() - debugAt[1]) : new Date(); }
   function parts(date) { return Object.fromEntries(clockParts.formatToParts(date).map((part) => [part.type, part.value])); }
@@ -123,7 +138,7 @@
     const custom = photo === "custom" ? localStorage.getItem(`${storageKey}-photo-${period}`) || localStorage.getItem(`${storageKey}-photo`) : "";
     const file = (photo === "custom" ? defaults[`${period}Photo`] : photo).replace(/\.webp$/, "-rich.webp");
     const url = custom || `../assets/backgrounds/${file}`;
-    if (url !== activeBackground) { activeBackground = url; $("#background").style.backgroundImage = `url("${url}")`; }
+    if (url !== activeBackground) { activeBackground = url; document.documentElement.style.setProperty("--scene-image", `url("${url}")`); }
   }
   function renderPhotoChoices() {
     $("#backgroundChoices").innerHTML = theme.groups.map(([, label, items], index) => `<details ${index === 0 ? "open" : ""}><summary>${safe(label)}</summary><div class="photo-grid">${items.map(([id, title]) => `<button class="background-choice" type="button" data-photo="${safe(id)}" aria-label="${safe(title)}" aria-pressed="false"><img src="../assets/backgrounds/${safe(id.replace(/\.webp$/, "-rich.webp"))}" alt="" loading="lazy"><span>${safe(title)}</span></button>`).join("")}</div></details>`).join("");
@@ -182,5 +197,5 @@
   $("[data-close-overlay]").addEventListener("click", () => closeOverlay("#overlay"));
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") { closeOverlay("#overlay"); closeOverlay("#settingsOverlay"); } });
   renderPhotoChoices(); setupSettings(); applySettings(); setInterval(() => tick(), 10_000);
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) tick(true); });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) { fitViewport(); tick(true); } });
 })();

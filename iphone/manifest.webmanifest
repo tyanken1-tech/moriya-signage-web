@@ -1,11 +1,14 @@
 {
-  "name": "守谷駅・ごみ収集",
-  "short_name": "守谷",
+  "name": "守谷ナビ",
+  "short_name": "守谷ナビ",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#14231b",
-  "background_color": "#14231b",
-  "icons": []
+  "theme_color": "#102B40",
+  "background_color": "#102B40",
+  "icons": [
+    { "src": "../assets/icons/moriya-navi-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "../assets/icons/moriya-navi-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
 }

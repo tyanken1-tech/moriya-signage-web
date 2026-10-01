@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "version": "1.2.0",
-  "displayVersion": "1.2",
-  "versionCode": 8,
+  "version": "1.2.1",
+  "displayVersion": "1.2.1",
+  "versionCode": 9,
   "updateManifestUrl": "https://raw.githubusercontent.com/tyanken1-tech/moriya-signage-updates/main/latest.json",
   "releaseRepository": "tyanken1-tech/moriya-signage",
   "metadataRepository": "tyanken1-tech/moriya-signage-updates"
