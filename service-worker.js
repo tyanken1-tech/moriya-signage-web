@@ -1,10 +1,11 @@
-const CACHE_NAME = "moriya-signage-v93-viewport-aligned-arrivals";
+const CACHE_NAME = "moriya-signage-v94-fullscreen-mobile";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./iphone/index.html",
   "./iphone/iphone.css",
   "./iphone/iphone.js",
+  "./iphone/viewport.js",
   "./iphone/manifest.webmanifest",
   "./assets/icons/moriya-navi-180.png",
   "./assets/icons/moriya-navi-192.png",

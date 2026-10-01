@@ -4,12 +4,12 @@
 @font-face { font-family: MaterialIcons; src: url("../assets/fonts/material-symbols-subset.woff2") format("woff2"); font-display: block; }
 :root { color-scheme: dark; --rich-blur: 23px; --light: #f7faf7; --muted: rgba(247,250,247,.75); --scene-image: url("../assets/backgrounds/sunny-komorebi-color-rich.webp"); --app-height: 100dvh; --content-top: calc(env(safe-area-inset-top, 0px) + 20px); --content-bottom: max(12px, env(safe-area-inset-bottom, 0px)); }
 * { box-sizing: border-box; }
-html, body { margin: 0; min-width: 320px; width: 100%; height: 100%; }
+html, body { margin: 0; min-width: 320px; width: 100%; min-height: 100%; min-height: max(100lvh, var(--surface-height, 100lvh)); }
 html { background: linear-gradient(180deg, rgba(5,12,14,.08), rgba(1,3,4,.87)), var(--scene-image) center / cover no-repeat #102029; }
 body { overflow: hidden; background: transparent; color: var(--light); font-family: LINESeed, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; user-select: none; -webkit-user-select: none; }
 button, input { font: inherit; }
 button { -webkit-tap-highlight-color: transparent; }
-.background, .background-shade { position: fixed; inset: 0; height: max(100%, 100lvh, var(--app-height)); pointer-events: none; }
+.background, .background-shade { position: fixed; left: 0; right: 0; top: -80px; bottom: auto; height: calc(max(100lvh, var(--surface-height, 100lvh), var(--app-height)) + 160px); pointer-events: none; }
 .background { background: var(--scene-image) center center / cover no-repeat #263b2b; transition: background-image 220ms ease; }
 .background-shade { background: linear-gradient(180deg, rgba(5,12,14,.08) 0%, rgba(4,8,9,.13) 36%, rgba(2,5,7,.62) 74%, rgba(1,3,4,.87) 100%), linear-gradient(115deg, rgba(255,255,255,.07), transparent 32%, rgba(0,0,0,.1) 72%); }
 .mobile-app { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; width: min(100%, 550px); height: 100vh; height: var(--app-height, 100dvh); margin: auto; padding: var(--content-top) max(12px, env(safe-area-inset-right)) var(--content-bottom) max(12px, env(safe-area-inset-left)); }

@@ -32,14 +32,22 @@
   function fitViewport() {
     cancelAnimationFrame(viewportFrame);
     viewportFrame = requestAnimationFrame(() => {
-      const height = window.visualViewport?.height || window.innerHeight;
-      if (height > 0) document.documentElement.style.setProperty("--app-height", `${Math.round(height)}px`);
+      const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+      const editing = document.activeElement?.matches("input:not([type=range]):not([type=checkbox]), textarea");
+      const viewport = window.MORIYA_MOBILE_VIEWPORT({
+        innerHeight: window.innerHeight, clientHeight: document.documentElement.clientHeight,
+        visualHeight: window.visualViewport?.height, screenHeight: window.screen.height,
+        standalone, keyboard: editing && window.visualViewport?.height < window.innerHeight * .8,
+      });
+      if (viewport.content > 0) document.documentElement.style.setProperty("--app-height", `${Math.round(viewport.content)}px`);
+      if (viewport.surface > 0) document.documentElement.style.setProperty("--surface-height", `${Math.round(viewport.surface)}px`);
     });
   }
   fitViewport();
   window.addEventListener("resize", fitViewport, { passive: true });
   window.addEventListener("pageshow", fitViewport);
   window.visualViewport?.addEventListener("resize", fitViewport, { passive: true });
+  window.addEventListener("orientationchange", fitViewport, { passive: true });
 
   function now() { return debugAt ? new Date(debugAt[0] + Date.now() - debugAt[1]) : new Date(); }
   function parts(date) { return Object.fromEntries(clockParts.formatToParts(date).map((part) => [part.type, part.value])); }
@@ -137,7 +145,7 @@
     const photo = settings[`${period}Photo`];
     const custom = photo === "custom" ? localStorage.getItem(`${storageKey}-photo-${period}`) || localStorage.getItem(`${storageKey}-photo`) : "";
     const file = (photo === "custom" ? defaults[`${period}Photo`] : photo).replace(/\.webp$/, "-rich.webp");
-    const url = custom || `../assets/backgrounds/${file}`;
+    const url = custom || new URL(`../assets/backgrounds/${file}`, location.href).href;
     if (url !== activeBackground) { activeBackground = url; document.documentElement.style.setProperty("--scene-image", `url("${url}")`); }
   }
   function renderPhotoChoices() {
