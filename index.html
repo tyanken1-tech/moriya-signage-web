@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#050708" />
     <style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07100e;color:#fff}</style>
   <link rel="stylesheet" href="./styles.css?v=20260929-2" />
-  <link rel="stylesheet" href="./new-ui.css?v=1.2.1" />
+  <link rel="stylesheet" href="./new-ui.css?v=1.3.0" />
   </head>
   <body>
     <div class="viewport-shell" id="viewportShell">
@@ -155,12 +155,17 @@
               <span id="newGarbagePreview" class="new-garbage-preview"></span>
             </button>
 
+            <section id="newApplianceTemperature" class="new-appliance-temperature" aria-label="Nature Remoの室温" hidden>
+              <strong id="newApplianceTemperatureValue" class="new-number">—</strong>
+              <time id="newApplianceTemperatureUpdated" class="new-number">接続待ち</time>
+            </section>
+
             <button class="new-sheet-dismiss-layer" id="newSheetDismissLayer" type="button" hidden aria-label="開いているウィンドウを閉じる"></button>
 
             <section class="new-garbage-schedule-sheet new-rect-panel" id="newGarbageScheduleSheet" hidden aria-label="ごみ収集予定">
               <header>
                 <div><span class="new-eyebrow">CLEAN CALENDAR</span><h2>ごみ収集予定</h2></div>
-                <button id="newGarbageClose" class="new-garbage-close" type="button" aria-label="ごみ収集予定を閉じる"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 8 24 24M24 8 8 24"/></svg></button>
+                <div class="garbage-header-tools"><button id="garbageReminderSettingsButton" class="new-garbage-close" type="button" aria-label="ごみ通知を設定"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 23h18l-3-4v-6a6 6 0 0 0-12 0v6l-3 4ZM13 27h6M16 5V3"/></svg></button><button id="newGarbageClose" class="new-garbage-close" type="button" aria-label="ごみ収集予定を閉じる"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 8 24 24M24 8 8 24"/></svg></button></div>
               </header>
               <div id="newGarbageScheduleList" class="new-garbage-schedule-list"></div>
               <p id="newGarbageCoverage" class="new-garbage-coverage"></p>
@@ -291,6 +296,11 @@
           </section>
         </div>
         <div class="new-floating-layer" id="newFloatingLayer"></div>
+        <section id="calendarReminderPopup" class="calendar-reminder-popup" role="alertdialog" aria-label="予定の通知" aria-describedby="calendarReminderItems" hidden>
+          <ul id="calendarReminderItems"></ul>
+          <button id="acknowledgeCalendarReminders" type="button">確認</button>
+          <p id="calendarReminderPopupStatus" role="status"></p>
+        </section>
         <button id="newSettingsButton" class="settings-button new-settings-button" type="button" aria-label="設定を開く" aria-expanded="false">
           <span class="material-symbols-outlined" aria-hidden="true">settings</span>
         </button>
@@ -328,13 +338,17 @@
         <div class="dialog-head">
           <div>
             <p class="kicker">Settings</p>
-            <h2 id="settingsTitle">表示設定</h2>
+            <h2 id="settingsTitle">設定</h2>
           </div>
-          <button class="icon-button" value="cancel" type="button" id="settingsClose" aria-label="閉じる">×</button>
+          <div class="settings-header-actions"><button class="primary" type="submit">保存</button><button class="icon-button" value="cancel" type="button" id="settingsClose" aria-label="閉じる">×</button></div>
         </div>
 
         <section class="settings-section settings-section-primary" aria-labelledby="displaySettingsTitle">
           <h3 id="displaySettingsTitle">表示モード</h3>
+          <label class="checkbox-row" id="applianceModeSetting">
+            <input id="applianceMode" type="checkbox" />
+            <span>家電操作モード（ニュー）：家電操作をメインに表示</span>
+          </label>
           <label>
             <span>画面デザイン</span>
             <select id="displayMode">
@@ -365,6 +379,15 @@
             <input id="garbageHomeEnabled" type="checkbox" />
             <span>ホーム画面に直近のごみ収集予定を表示</span>
           </label>
+          <details id="calendarReminderSettings" class="calendar-reminder-settings">
+            <summary>語句に一致する予定のお知らせ</summary>
+            <label class="checkbox-row"><input id="calendarRemindersEnabled" type="checkbox"><span>予定の警告を有効にする</span></label>
+            <p class="dialog-note">予定名を部分一致で検索します。最大5ルール、各3回まで。前々日・前日・当日の日本時間で通知し、了解するまで残ります。起動が遅れた場合は直近の通知を表示し、予定の日を過ぎた通知は終了します。</p>
+            <div id="calendarReminderRules"></div>
+            <button id="addCalendarReminderRule" type="button">ルールを追加（最大5件）</button>
+            <p class="dialog-note">ルールはiCalを含む設定同期・全設定バックアップの対象です。了解情報はGitHub同期の範囲や親子の役割にかかわらず共有され、反映には設定された更新間隔分の遅れがあります。</p>
+            <p id="calendarReminderSyncStatus" class="dialog-note" role="status">GitHub接続時は、どの端末で了解しても全端末に反映します。</p>
+          </details>
         </section>
 
         <section class="settings-section" aria-labelledby="weatherSettingsTitle">
@@ -456,25 +479,6 @@
             </details>
             <small>トークンはこの端末内の設定にのみ保存します。室温・家電一覧は5分間隔で更新します。公式Cloud APIではNature Remoアプリのシーンは公開されていないため、登録済み家電・信号を選択できます。</small>
           </div>
-        </section>
-
-        <section class="settings-section lan-sync-settings" id="lanSyncSettings" aria-labelledby="lanSyncTitle" hidden>
-          <h3 id="lanSyncTitle">2台のスマートホーム設定を同期</h3>
-          <p class="dialog-note">同じWi-Fiの2台でアプリを開いている間、設定変更と操作予約を同期します。予約を実行するのは作成した端末だけです。</p>
-          <p class="dialog-note">先に1台目で「この端末のQR・コードを表示」を押します。2台目でQRを読み取るか、機器を探して、1台目に表示されたコードを入力してください。</p>
-          <p id="lanSyncStatus" class="dialog-note" role="status">接続を準備中</p>
-          <p id="lanSyncLocalAddress" class="dialog-note"></p>
-          <div class="inline-fields"><button id="lanSyncShowQr" type="button">この端末のQR・コードを表示</button><button id="lanSyncScanQr" type="button">相手のQRを読み取る</button><button id="lanSyncDiscover" type="button">同じWi-Fiの機器を探す</button></div>
-          <div id="lanSyncQrPanel" class="lan-sync-qr-panel" hidden><p>このコードを2台目の「相手に表示されたコード」へ入力</p><strong id="lanSyncQrCode" class="lan-sync-code"></strong><img id="lanSyncQrImage" alt="この端末のペアリング用QRコード" hidden /><small id="lanSyncQrAddress"></small><small id="lanSyncQrWarning"></small><small>コードの有効期限は5分です。両端末でアプリを開いたままにしてください。</small></div>
-          <div id="lanSyncScanner" class="lan-sync-scanner" hidden><video id="lanSyncCamera" autoplay muted playsinline></video><button id="lanSyncStopScan" type="button">読み取りをやめる</button></div>
-          <div id="lanSyncDiscovered" class="lan-sync-discovered" aria-live="polite"></div>
-          <div class="inline-fields"><label><span>1台目のIPアドレス</span><input id="lanSyncHost" type="text" inputmode="decimal" placeholder="192.168.1.10 または 100.x.x.x" /></label><label><span>1台目のポート</span><input id="lanSyncPort" type="number" min="1" max="65535" placeholder="41387" /></label><label><span>1台目に表示された4桁コード</span><input id="lanSyncCode" type="text" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" spellcheck="false" placeholder="0123" /></label><button id="lanSyncPair" type="button">ペアリング</button></div>
-          <p class="dialog-note">4桁コードは5分間有効・試行は5回までです。信頼できるネットワークで、両端末を同じ新しいAPKに更新して接続してください。</p>
-          <p class="dialog-note">別のWi-Fiから接続する場合は、両端末で同じTailscaleネットワークに接続し、1台目の100.x.x.xのIP・ポート・コードを2台目に手入力してください。機器検索は同一Wi-Fi専用です。</p>
-          <label class="lan-sync-mode"><span>スマートホーム設定の同期方法</span><select id="lanSyncMode"><option value="manual">手動で同期先を選ぶ（推奨）</option><option value="auto">変更時に自動で同期</option><option value="off">設定は同期しない</option></select></label>
-          <p class="dialog-note">手動では、ペアリング後に下の端末ごとに同期方向を選びます。自動同期は両端末で選んだときだけ働きます。「設定は同期しない」でも予約操作の共有・取り消しは利用できます。</p>
-          <div id="lanSyncPeers" class="lan-sync-peers"></div>
-          <button id="lanSyncRefresh" type="button">今すぐ同期</button>
         </section>
 
         <section class="settings-section" aria-labelledby="backgroundSettingsTitle">
@@ -624,6 +628,13 @@
           </div>
         </section>
 
+        <section class="settings-section" aria-labelledby="earthquakeBetaTitle">
+          <h3 id="earthquakeBetaTitle">地震情報 <small>ベータ</small></h3>
+          <label class="checkbox-row"><input id="earthquakeBetaEnabled" type="checkbox"><span>地震情報のベータ機能を使う</span></label>
+          <p id="earthquakeBetaStatus" class="dialog-note" role="status">オフ。オンにするとホームから上スワイプで地震画面を開けます。設定はこの端末に即時保存します。</p>
+          <div id="earthquakeBetaControls"></div>
+        </section>
+
         <div class="native-panel" id="androidAppSettings" hidden>
           <p class="kicker">Android App</p>
           <p>現在のバージョン <strong id="appCurrentVersion">確認中</strong></p>
@@ -685,6 +696,8 @@
 
         <details class="debug-panel">
           <summary>デバッグモード</summary>
+          <div class="button-row"><button id="showCalendarReminderDemo" type="button">予定のお知らせをデモ表示</button></div>
+          <p class="dialog-note">デモは通知設定がオフでも表示できます。「確認」で終了し、実際の通知・確認履歴・GitHub同期には影響しません。</p>
           <label class="checkbox-row">
             <input id="debugEnabled" type="checkbox" />
             <span>デバッグ値を使う</span>
@@ -729,17 +742,32 @@
       </form>
     </div>
 
+    <div id="garbageReminderDialog" class="settings-dialog garbage-reminder-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="garbageReminderTitle">
+      <form id="garbageReminderForm">
+        <div class="garbage-reminder-dialog-head"><h2 id="garbageReminderTitle">ごみの出し忘れ通知</h2><button id="closeGarbageReminderSettings" class="new-garbage-close" type="button" aria-label="ごみ通知設定を閉じる"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 8 24 24M24 8 8 24"/></svg></button></div>
+        <label class="checkbox-row"><input id="garbageRemindersEnabled" type="checkbox"><span>ごみ通知を使う</span></label>
+        <div id="garbageReminderRules"></div>
+        <button id="addGarbageReminderRule" type="button">通知を追加（最大3件）</button>
+        <p class="dialog-note">標準は前日21:00（午後9時）・当日7:00。各通知の日時は変更できます。通知は「確認」まで残り、次の通知時刻に再表示します。GitHub接続時は確認済み情報を共有します（受信は同期の間隔に従います）。アプリが動作中のみ通知し、起動時は直近の未確認通知を表示します。</p>
+        <p id="garbageReminderEditorStatus" role="status" class="dialog-note"></p>
+        <div class="dialog-actions"><button id="cancelGarbageReminderSettings" type="button">キャンセル</button><button class="primary" type="submit">ごみ通知を保存</button></div>
+      </form>
+    </div>
     <script src="./data/display-theme.js"></script>
     <script src="./data/tx-moriya-akihabara.js"></script>
     <script src="./data/tx-moriya-arrivals.js"></script>
   <script src="./data/moriya-garbage-calendar.js?v=20260914-1"></script>
-    <script src="./app.js?v=20261001-1"></script>
+    <script src="./calendar-reminders-core.js?v=20261002-1"></script>
+    <script src="./app.js?v=1.3.0"></script>
   <script src="./local-video-background.js?v=20260925-1"></script>
-    <script src="./new-ui.js?v=20261001-1"></script>
-    <script src="./lan-sync.js?v=20260928-1"></script>
+    <script src="./new-ui.js?v=1.3.0"></script>
+    <script src="./earthquake-beta.js?v=20261010-3"></script>
+    <script src="./calendar-reminders.js?v=20261002-1"></script>
+    <script src="./garbage-reminders.js?v=20261004-1"></script>
     <script src="./github-sync-core.js?v=20260929-4"></script>
     <script src="./github-sync.js?v=20260929-4"></script>
     <script src="./app-update-core.js?v=20260928-1"></script>
     <script src="./app-updates.js?v=20260928-1"></script>
+    <script src="./web-updates.js?v=2.0.0"></script>
   </body>
 </html>

@@ -6,6 +6,8 @@ const DEFAULT_SETTINGS = {
   numberFontWeight: "400",
   clockFontWeight: "100",
   icalUrl: "",
+  calendarReminders: { enabled: false, rules: [] },
+  garbageReminders: { enabled: false, rules: [] },
   trainOffsetMinutes: 10,
   trainAlerts: { orangeMinutes: 19, redMinutes: 15, orangeColor: "#d19862", redColor: "#c86363" },
   backgroundImage: "",
@@ -52,7 +54,7 @@ const DEFAULT_SETTINGS = {
     nightCloudy: ["night-cloudy-1.webp"],
     nightRain: ["night-rain-1.webp"],
   },
-  display: { mode: "new", profile: "standard", forecastMode: "hourly", schedulePanelMode: "calendar", animationMode: "light", reduceMotion: false, hideSchedule: false, windowOnlyBlur: false, localVideoBeta: false, richBlur: 23, richTransparency: 87 },
+  display: { mode: "new", applianceMode: false, profile: "standard", forecastMode: "hourly", schedulePanelMode: "calendar", animationMode: "light", reduceMotion: false, hideSchedule: false, windowOnlyBlur: false, localVideoBeta: false, richBlur: 23, richTransparency: 87 },
   android: { keepAwake: true },
   weather: { name: "茨城県 守谷市", latitude: 35.9514, longitude: 139.9754 },
   debug: { enabled: false, dateTime: "", weatherCode: "", temperature: "", clockBaseMs: null, clockStartedAtMs: null, events: [] },
@@ -286,6 +288,7 @@ const el = {
   settingsClose: document.querySelector("#settingsClose"),
   settingsForm: document.querySelector("#settingsForm"),
   displayMode: document.querySelector("#displayMode"),
+  applianceMode: document.querySelector("#applianceMode"),
   displayProfile: document.querySelector("#displayProfile"),
   fontSelect: document.querySelector("#fontSelect"),
   numberFontSelect: document.querySelector("#numberFontSelect"),
@@ -496,6 +499,7 @@ let selectedCalendarDateKey = tokyoDateKey(now());
 let calendarFollowsToday = true;
 let cachedIcalUrl = "";
 let cachedIcalText = "";
+let calendarOfflineSnapshot = null;
 let cachedIcalDefinitions = null;
 let cachedCalendarEventsByDate = new Map();
 let calendarLoadSequence = 0;
@@ -781,7 +785,8 @@ function readNatureActionSelect(select) {
 
 function setNatureRemoFieldsVisibility(mode = el.homeInfoMode?.value || settings.homeInfoMode) {
   if (el.marketSettingsFields) el.marketSettingsFields.hidden = !["market", "hybrid"].includes(mode);
-  if (el.natureRemoSettingsFields) el.natureRemoSettingsFields.hidden = !["remo", "hybrid"].includes(mode);
+  const applianceMode = (el.displayMode?.value || settings.display.mode) === "new" && Boolean(el.applianceMode?.checked);
+  if (el.natureRemoSettingsFields) el.natureRemoSettingsFields.hidden = !(["remo", "hybrid"].includes(mode) || applianceMode);
   syncNatureActionRows(mode);
 }
 
@@ -844,7 +849,14 @@ function natureSceneChoices(scenes = settings.natureRemo?.scenes || []) {
 }
 
 function natureChoiceOptions(choices, selected = "") {
-  return choices.map((choice) => `<option value='${escapeHtml(natureActionValue(choice.action))}' ${natureActionValue(choice.action) === selected ? "selected" : ""}>${escapeHtml(choice.label)}</option>`).join("");
+  // Discovery is transient. Never discard saved commands just because an API has
+  // not returned their device yet (or failed / temporarily omitted it).
+  const options = [...choices];
+  if (selected && !options.some(choice => natureActionValue(choice.action) === selected)) {
+    const saved = readNatureActionSelect({ value: selected });
+    if (saved) options.unshift({ label: `${saved.appliance || "保存済みの家電"} › ${saved.name || saved.command || "操作"}（保存済み）`, action: saved });
+  }
+  return options.map((choice) => `<option value='${escapeHtml(natureActionValue(choice.action))}' ${natureActionValue(choice.action) === selected ? "selected" : ""}>${escapeHtml(choice.label)}</option>`).join("");
 }
 
 function readNatureScenesEditor() {
@@ -897,7 +909,7 @@ function populateNatureRemoSelectors(discovery = latestNatureRemoDiscovery) {
   natureSettingRows().forEach(([select], index) => {
     if (!select) return;
     const selected = select.value || natureActionValue(settings.natureRemo.actions[index]?.action);
-    select.innerHTML = `<option value="">操作を選択</option>${choices.map((choice) => `<option value='${escapeHtml(natureActionValue(choice.action))}'>${escapeHtml(choice.label)}</option>`).join("")}`;
+    select.innerHTML = `<option value="">操作を選択</option>${natureChoiceOptions(choices, selected)}`;
     if ([...select.options].some((option) => option.value === selected)) select.value = selected;
   });
   renderNatureScenesEditor(draftScenes);
@@ -993,6 +1005,8 @@ function loadSettings() {
         ? saved.homeInfoMode
         : saved.market?.enabled === false ? "none" : "market",
       market: normalizeMarketSettings(saved.market),
+      calendarReminders: window.MoriyaReminderCore.normalize(saved.calendarReminders),
+      garbageReminders: window.MoriyaReminderCore.normalizeGarbage(saved.garbageReminders),
       natureRemo,
       switchBot: normalizeSwitchBotSettings(saved.switchBot),
       smartLife: normalizeSmartLifeSettings(saved.smartLife),
@@ -1137,15 +1151,16 @@ async function restoreSettingsBackupText(text) {
 window.MoriyaSettingsBridge = {
   export: (scope) => {
     const keys = scope === 'all' ? Object.keys(DEFAULT_SETTINGS) : scope === 'shared'
-      ? [...SMART_HOME_SETTING_KEYS, 'icalUrl', 'market'] : SMART_HOME_SETTING_KEYS;
+      ? [...SMART_HOME_SETTING_KEYS, 'icalUrl', 'market', 'calendarReminders', 'garbageReminders'] : SMART_HOME_SETTING_KEYS;
     return { scope, settings: Object.fromEntries(keys.map(key => [key, structuredClone(settings[key])])) };
   },
   apply: async (data) => {
     if (!data || !['all','shared','smartHome'].includes(data.scope) || !data.settings || Array.isArray(data.settings)) throw new Error('同期設定の形式が不正です。');
     const keys = data.scope === 'all' ? Object.keys(DEFAULT_SETTINGS) : data.scope === 'shared'
-      ? [...SMART_HOME_SETTING_KEYS, 'icalUrl', 'market'] : SMART_HOME_SETTING_KEYS;
-    if (keys.some(key => !Object.hasOwn(data.settings, key))) throw new Error('同期設定に必要な項目が不足しています。');
-    const incoming = Object.fromEntries(keys.map(key => [key, data.settings[key]]));
+      ? [...SMART_HOME_SETTING_KEYS, 'icalUrl', 'market', 'calendarReminders', 'garbageReminders'] : SMART_HOME_SETTING_KEYS;
+    // Pre-reminder versions remain readable without erasing local reminder rules.
+    if (keys.some(key => !['calendarReminders', 'garbageReminders'].includes(key) && !Object.hasOwn(data.settings, key))) throw new Error('同期設定に必要な項目が不足しています。');
+    const incoming = Object.fromEntries(keys.filter(key => Object.hasOwn(data.settings, key)).map(key => [key, data.settings[key]]));
     const next = { ...settings, ...incoming, android: settings.android, debug: settings.debug };
     next.display = { ...next.display, profile: settings.display.profile };
     const previous = localStorage.getItem('moriyaSignageSettings');
@@ -1169,6 +1184,32 @@ window.MoriyaSettingsBridge = {
   },
   backup: (scope) => createSettingsBackupText(scope, false, false),
   restore: restoreSettingsBackupText,
+};
+
+window.MoriyaCalendarReminderBridge = {
+  config: () => settings.calendarReminders,
+  garbageConfig: () => settings.garbageReminders,
+  saveGarbage: (config) => {
+    const previous = settings.garbageReminders;
+    settings.garbageReminders = window.MoriyaReminderCore.normalizeGarbage(config);
+    try { saveSettings(); } catch (error) { settings.garbageReminders = previous; throw error; }
+  },
+  garbageSnapshot: () => ({ config: settings.garbageReminders, now: now(), calendar: window.MORIYA_GARBAGE_CALENDAR }),
+  snapshot: (fallback) => {
+    const current = now(), today = tokyoDateKey(current), source = normalizeIcalUrl(settings.icalUrl);
+    const freshText = source && cachedIcalUrl === source ? cachedIcalText : '';
+    if (!settings.calendarReminders.enabled) return { config: settings.calendarReminders, now: current, source, freshText, events: [] };
+    const text = freshText || (fallback?.url === source && typeof fallback.text === 'string' && fallback.text.length <= 2 * 1024 * 1024 ? fallback.text : '');
+    const definitions = freshText && cachedIcalDefinitions ? cachedIcalDefinitions : text ? parseIcalDefinitions(text) : [];
+    const events = [];
+    for (let offset = 0; offset <= 2; offset++) {
+      const date = tokyoDateKey(addDays(dateFromKey(today), offset));
+      events.push(...expandIcalEvents(definitions, date).filter(event => Number.isFinite(event.start.getTime()) && tokyoDateKey(event.start) === date));
+    }
+    events.push(...debugEventsForDate(today).map(event => ({ uid: 'debug:' + event.title, summary: event.title,
+      start: new Date(`${today}T${/^\d{2}:\d{2}$/.test(event.startLabel) ? event.startLabel : '00:00'}:00+09:00`), allDay: event.startLabel === '終日' })));
+    return { config: settings.calendarReminders, now: current, source, freshText, events };
+  },
 };
 
 function updateStageScale() {
@@ -1446,6 +1487,10 @@ function applySettingsToUi() {
   if (el.forecastMode) el.forecastMode.value = settings.display.forecastMode;
   settings.display.schedulePanelMode = "calendar";
   if (el.displayMode) el.displayMode.value = settings.display.mode || "new";
+  if (el.applianceMode) el.applianceMode.checked = Boolean(settings.display.applianceMode);
+  setNatureRemoFieldsVisibility(settings.homeInfoMode);
+  document.querySelector("#applianceModeSetting").hidden = settings.display.mode === "classic";
+  window.MoriyaNewUi?.syncApplianceMode?.();
   if (el.displayProfile) el.displayProfile.value = settings.display.profile === "tablet10" ? "tablet10" : "standard";
   const animationMode = settings.display.animationMode || (settings.display.reduceMotion ? "off" : "light");
   settings.display.animationMode = animationMode;
@@ -1476,6 +1521,7 @@ function applySettingsToUi() {
   el.signage.classList.toggle("no-calendar", !settings.icalUrl);
   updateFontPreview();
   applyNativeSettings();
+  updateSettingsLayoutVisibility();
 }
 
 function updateFontPreview() {
@@ -1490,10 +1536,128 @@ function updateFontPreview() {
   el.clockFontPreview.style.fontWeight = el.clockFontWeightSelect?.value || DEFAULT_SETTINGS.clockFontWeight;
 }
 
+// Reparent existing controls, never recreate them: listeners, drafts and IDs survive.
+function setupSettingsLayout() {
+  const form = el.settingsForm;
+  const content = document.createElement('div');
+  content.id = 'settingsSections';
+  const hint = document.createElement('p');
+  hint.className = 'dialog-note';
+  hint.textContent = '項目を開いて設定してください。無効な機能の詳細は隠しています。通常設定は「保存」で反映します。';
+  content.append(hint);
+  function group(id, title) {
+    const node = document.createElement('details');
+    node.id = id; node.className = 'settings-category';
+    const summary = document.createElement('summary');
+    summary.id = id + 'Title';
+    summary.textContent = title;
+    const body = document.createElement('div'); body.className = 'settings-category-body';
+    node.append(summary, body); content.append(node);
+    return body;
+  }
+  function subsection(node, title) {
+    if (!node) return null;
+    if (node.tagName === 'DETAILS') { node.classList.add('settings-subsection'); return node; }
+    const detail = document.createElement('details');
+    detail.className = 'settings-subsection';
+    const summary = document.createElement('summary');
+    const heading = node.querySelector(':scope > h3');
+    summary.textContent = title || heading?.textContent || '';
+    if (heading) { summary.id = heading.id; heading.remove(); }
+    const body = document.createElement('div'); body.className = 'settings-subsection-body';
+    // Keep the original container, including native-only hidden state and IDs.
+    body.append(node); detail.append(summary, body);
+    return detail;
+  }
+  const section = id => document.getElementById(id)?.closest('section');
+  const screen = group('settingsAppearance', '画面・デザイン');
+  const display = section('displaySettingsTitle');
+  display.querySelector('h3').remove(); display.removeAttribute('aria-labelledby'); screen.append(display);
+  screen.append(document.getElementById('homeInfoMode').closest('label'));
+  screen.append(subsection(section('backgroundSettingsTitle')));
+  screen.append(subsection(document.querySelector('.font-settings')));
+  screen.append(subsection(section('motionSettingsTitle')));
+  const appliances = group('settingsAppliances', '家電・室温');
+  const applianceHint = document.createElement('p'); applianceHint.id = 'settingsApplianceHint'; applianceHint.className = 'dialog-note';
+  applianceHint.textContent = '「画面・デザイン」で家電操作モード、または室温・家電を含む表示を選ぶと設定できます。';
+  appliances.append(applianceHint, el.natureRemoSettingsFields);
+  const calendars = group('settingsCalendars', 'カレンダー・通知');
+  const calendar = section('calendarSettingsTitle');
+  calendar.querySelector('h3').remove();
+  calendar.removeAttribute('aria-labelledby');
+  calendars.append(calendar);
+  const garbageButton = document.createElement('button'); garbageButton.type = 'button';
+  garbageButton.textContent = 'ごみの出し忘れ通知を設定';
+  garbageButton.addEventListener('click', () => document.getElementById('garbageReminderSettingsButton')?.click());
+  calendars.append(garbageButton);
+  const trains = group('settingsTrains', '時刻表');
+  const timetable = document.querySelector('.timetable-settings');
+  timetable.open = true; trains.append(timetable);
+  const info = group('settingsWeatherMarket', '天気・相場');
+  info.append(subsection(section('weatherSettingsTitle')));
+  const marketDetail = subsection(el.marketSettingsFields, '相場の銘柄');
+  marketDetail.id = 'settingsMarketDetail'; info.append(marketDetail);
+  const marketHint = document.createElement('p'); marketHint.id = 'settingsMarketHint'; marketHint.className = 'dialog-note';
+  marketHint.textContent = '「画面・デザイン」で相場を含む表示を選ぶと銘柄を設定できます。'; info.append(marketHint);
+  const earthquake = group('settingsEarthquake', '地震情報〔ベータ〕');
+  const eqSection = section('earthquakeBetaTitle'); eqSection.querySelector('h3').remove(); eqSection.removeAttribute('aria-labelledby'); earthquake.append(eqSection);
+  const sync = group('settingsSyncBackup', '端末同期・バックアップ');
+  sync.append(document.getElementById('githubSyncSettings'), document.querySelector('.backup-settings'));
+  const device = group('settingsDevice', 'アプリ・端末');
+  device.append(el.androidAppSettings);
+  const debug = group('settingsAdvanced', '詳細・デバッグ');
+  debug.append(document.querySelector('.debug-panel'));
+  // Empty legacy headings are no longer useful once their controls are regrouped.
+  section('homeInfoSettingsTitle')?.remove();
+  const footer = document.createElement('div'); footer.className = 'settings-footer';
+  footer.append(el.settingsMessage, form.querySelector(':scope > .dialog-actions'));
+  form.append(content, footer);
+  form.addEventListener('change', updateSettingsLayoutVisibility);
+  form.addEventListener('input', updateSettingsLayoutVisibility);
+  new MutationObserver(updateSettingsLayoutVisibility).observe(document.getElementById('calendarReminderRules'), { childList: true });
+  form.addEventListener('invalid', event => {
+    // Reveal validation errors in folded sections instead of silently blocking save.
+    for (let node = event.target.parentElement; node && node !== form; node = node.parentElement) {
+      if (node.tagName === 'DETAILS') node.open = true;
+      if (node.hidden) node.hidden = false;
+    }
+    event.target.scrollIntoView({ block: 'center' });
+  }, true);
+  document.addEventListener('moriya-settings-visibility', updateSettingsLayoutVisibility);
+  updateSettingsLayoutVisibility();
+}
+
+function updateSettingsLayoutVisibility() {
+  const byId = id => document.getElementById(id);
+  if (!byId('settingsSections')) return;
+  const show = (node, visible) => { if (node) node.hidden = !visible; };
+  const mode = el.homeInfoMode.value;
+  const appliances = ['remo', 'hybrid'].includes(mode) || (el.applianceMode.checked && el.displayMode.value === 'new');
+  show(byId('settingsApplianceHint'), !appliances);
+  show(byId('settingsMarketDetail'), ['market', 'hybrid'].includes(mode));
+  show(byId('settingsMarketHint'), !['market', 'hybrid'].includes(mode));
+  show(byId('settingsDevice'), !el.androidAppSettings.hidden);
+  show(byId('earthquakeBetaControls'), byId('earthquakeBetaEnabled').checked);
+  const reminders = byId('calendarRemindersEnabled').checked;
+  show(byId('calendarReminderRules'), reminders);
+  show(byId('addCalendarReminderRule'), reminders);
+  byId('calendarReminderRules').querySelectorAll('input[type="time"]').forEach(input => {
+    const ruleEnabled = input.closest('fieldset')?.querySelector('[data-field="enabled"]')?.checked;
+    input.required = reminders && ruleEnabled !== false;
+  });
+  show(byId('eqThreshold')?.closest('label'), Boolean(byId('eqThresholdEnabled')?.checked));
+  show(byId('eqSoundTest'), byId('eqSound')?.value !== 'off');
+  const debug = el.debugEnabled.checked;
+  show(el.debugDateTime.closest('.settings-grid'), debug);
+  show(el.debugTemperature.closest('label'), debug);
+  show(byId('debugEventsList')?.closest('section'), debug);
+}
+
 function openSettings() {
   renderDebugEventsEditor();
   syncBackgroundSampleSelection();
   el.settingsDialog.hidden = false;
+  updateSettingsLayoutVisibility();
   el.settingsButton.setAttribute("aria-expanded", "true");
   document.dispatchEvent(new Event("moriya-settings-visibility"));
 }
@@ -2050,13 +2214,14 @@ async function searchWeatherLocation(query) {
 async function loadCalendar(forceFetch = false) {
   const loadId = ++calendarLoadSequence;
   const targetDateKey = selectedCalendarDateKey;
-  if (settings.display.hideSchedule) {
+  if (settings.display.hideSchedule && !settings.calendarReminders.enabled) {
     el.events.innerHTML = "";
     el.calendarStatus.textContent = "";
     el.events.removeAttribute("aria-busy");
     lastCalendarSignature = "";
     window.MoriyaNewUi?.renderCalendars?.();
     renderTrains(true);
+    document.dispatchEvent(new Event('moriya-calendar-data'));
     return;
   }
   if (!settings.icalUrl) {
@@ -2108,6 +2273,7 @@ async function loadCalendar(forceFetch = false) {
         .sort((a, b) => a.start - b.start);
       cachedCalendarEventsByDate.set(targetDateKey, events);
     }
+    document.dispatchEvent(new Event('moriya-calendar-data'));
     if (loadId !== calendarLoadSequence || targetDateKey !== selectedCalendarDateKey) return;
 
     renderEvents(
@@ -2121,7 +2287,7 @@ async function loadCalendar(forceFetch = false) {
       `ical:${targetDateKey}`,
     );
     el.events.removeAttribute("aria-busy");
-    setAnimatedText(el.calendarStatus, `${formatTime(now())} 更新`);
+    setAnimatedText(el.calendarStatus, calendarOfflineSnapshot ? `保存済み予定（${new Date(calendarOfflineSnapshot).toLocaleString('ja-JP')}取得・通信不可）` : `${formatTime(now())} 更新`);
   } catch (error) {
     if (loadId !== calendarLoadSequence) return;
     console.warn("Calendar could not be loaded.", error);
@@ -2165,6 +2331,22 @@ function normalizeIcalUrl(url) {
 }
 
 async function fetchIcalText(url) {
+  const normalized = normalizeIcalUrl(url), key='moriyaOfflineCalendar';
+  calendarOfflineSnapshot=null;
+  try {
+    if(navigator.onLine===false) throw new Error('Offline');
+    const text=await fetchFreshIcalText(normalized);
+    try {localStorage.setItem(key,JSON.stringify({url:normalized,text,fetchedAt:Date.now()}));} catch {}
+    return text;
+  } catch(error) {
+    try {
+      const cached=JSON.parse(localStorage.getItem(key)||'null');
+      if(cached?.url===normalized && /BEGIN:VCALENDAR|BEGIN:VEVENT/.test(cached.text||'')) {calendarOfflineSnapshot=cached.fetchedAt;return cached.text;}
+    } catch {}
+    throw error;
+  }
+}
+async function fetchFreshIcalText(url) {
   const normalized = normalizeIcalUrl(url);
   let lastError = null;
   const nativePlugin = getNativeSignagePlugin();
@@ -2348,11 +2530,16 @@ async function requestNatureRemoDiscovery(token) {
   return response.json();
 }
 
+function natureRemoDisplayEnabled() {
+  return ["remo", "hybrid"].includes(settings.homeInfoMode)
+    || (settings.display.mode === "new" && Boolean(settings.display.applianceMode));
+}
+
 async function loadNatureRemo(force = false, tokenOverride = "") {
   const requestId = ++natureRemoLoadSequence;
   const token = normalizeNatureToken(tokenOverride || settings.natureRemo.token);
   if (tokenOverride && el.natureRemoToken) el.natureRemoToken.value = token;
-  if (!["remo", "hybrid"].includes(settings.homeInfoMode) && !tokenOverride) {
+  if (!natureRemoDisplayEnabled() && !tokenOverride) {
     emitNatureRemo({}, false);
     return null;
   }
@@ -2436,7 +2623,7 @@ async function sendConfiguredNatureAction(item, source, index, scheduledScene = 
 
 const pendingSmartActions = new Map();
 function isOwnSmartSchedule(pending) {
-  return pending.ownerId === "local" || pending.ownerId === window.MoriyaLanSync?.deviceId || pending.ownerId === window.MoriyaGithubSync?.deviceId;
+  return pending.ownerId === "local" || pending.ownerId === window.MoriyaGithubSync?.deviceId;
 }
 function smartActionKey(source, item, index) {
   return source === "panel" ? `panel:${item?.id || index}` : `home:${index}`;
@@ -2460,7 +2647,7 @@ function scheduleSmartAction(source, index, minutes) {
   const dueAt = Date.now() + delayMinutes * 60000;
   const pending = { id, key: smartActionKey(source, item, index), dueAt, label: item.label, source, index,
     actionId: source === "panel" ? item.id : "", icon:item.icon || "power", badge:item.badge || "none",
-    ownerId: window.MoriyaGithubSync?.deviceId || window.MoriyaLanSync?.deviceId || "local", timer: 0 };
+    ownerId: window.MoriyaGithubSync?.deviceId || "local", timer: 0 };
   pending.timer = window.setTimeout(() => {
     pendingSmartActions.delete(id);
     notifySmartScheduleChange({ kind: "complete", entry: pending });
@@ -2476,14 +2663,14 @@ function cancelSmartActionSchedule(id) {
   if (!pending) return false;
   if (!isOwnSmartSchedule(pending)) {
     if (pending.transport === "github") return window.MoriyaGithubSync?.cancelSchedule?.(id) || false;
-    return window.MoriyaLanSync?.cancelRemote?.(pending.ownerId, id) || Promise.resolve(false);
+    return Promise.resolve(false);
   }
   window.clearTimeout(pending.timer);
   pendingSmartActions.delete(id);
   notifySmartScheduleChange({ kind: "cancel", entry: pending });
   return true;
 }
-function receivePeerSchedules(ownerId, items, transport = "lan", ownerName = "別端末") {
+function receivePeerSchedules(ownerId, items, transport = "github", ownerName = "別端末") {
   for (const [id, pending] of pendingSmartActions) {
     if (pending.ownerId !== ownerId || isOwnSmartSchedule(pending)) continue;
     window.clearTimeout(pending.timer);
@@ -2595,6 +2782,8 @@ function parseIcalDefinitions(text) {
       start,
       end,
       allDay: start.allDay,
+      uid: firstIcalValue(props, "UID"),
+      status: firstIcalValue(props, "STATUS").toUpperCase(),
       summary: firstIcalValue(props, "SUMMARY"),
       location: firstIcalValue(props, "LOCATION"),
       rrule: firstIcalValue(props, "RRULE"),
@@ -2967,11 +3156,12 @@ function setupSettings() {
   });
   el.settingsButton.addEventListener("click", openSettings);
   el.settingsClose.addEventListener("click", closeSettings);
+  // The backdrop is not a cancel button: accidental taps must retain the draft.
   el.settingsDialog.addEventListener("click", (event) => {
-    if (event.target === el.settingsDialog) closeSettings();
+    if (event.target === el.settingsDialog) event.stopPropagation();
   });
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !el.settingsDialog.hidden) closeSettings();
+    if (event.key === "Escape" && !el.settingsDialog.hidden && document.getElementById('garbageReminderDialog')?.hidden !== false) closeSettings();
   });
   el.fontSelect.addEventListener("change", () => {
     syncFontWeightOptions(el.fontSelect, el.fontWeightSelect, el.fontWeightSelect?.value);
@@ -2991,6 +3181,11 @@ function setupSettings() {
   el.windowOnlyBlur?.addEventListener("change", () => {
     applyWindowBlurUi(el.windowOnlyBlur.checked);
   });
+  el.displayMode?.addEventListener("change", () => {
+    document.querySelector("#applianceModeSetting").hidden = el.displayMode.value === "classic";
+    setNatureRemoFieldsVisibility();
+  });
+  el.applianceMode?.addEventListener("change", () => setNatureRemoFieldsVisibility());
   el.localVideoBeta?.addEventListener("change", () => {
     syncLocalVideoControls(el.localVideoBeta.checked);
   });
@@ -3209,6 +3404,13 @@ function setupSettings() {
   });
   el.settingsForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const reminderError = window.MoriyaReminderEditor?.validate();
+    if (reminderError) {
+      el.settingsMessage.textContent = reminderError;
+      document.getElementById('calendarReminderSettings').open = true;
+      document.getElementById('calendarReminderSettings').scrollIntoView({ block: 'center' });
+      return;
+    }
     settings.font = el.fontSelect.value;
     settings.numberFont = el.numberFontSelect.value;
     settings.clockFont = el.clockFontSelect.value;
@@ -3224,6 +3426,7 @@ function setupSettings() {
     settings.backgroundSlideshowSeconds = clampNumber(el.backgroundSlideshowSeconds?.value, 30, 600, DEFAULT_SETTINGS.backgroundSlideshowSeconds);
     settings.videoQuietHours = readLivePowerSchedule();
     settings.icalUrl = el.icalUrl.value.trim();
+    settings.calendarReminders = window.MoriyaReminderEditor?.read() || settings.calendarReminders;
     settings.display.hideSchedule = Boolean(el.hideSchedule?.checked);
     settings.homeInfoMode = ["none", "market", "remo", "hybrid"].includes(el.homeInfoMode?.value) ? el.homeInfoMode.value : "market";
     settings.market = normalizeMarketSettings({
@@ -3271,6 +3474,7 @@ function setupSettings() {
     settings.display.forecastMode = el.forecastMode?.value || DEFAULT_SETTINGS.display.forecastMode;
     settings.display.schedulePanelMode = "calendar";
     settings.display.mode = el.displayMode?.value || DEFAULT_SETTINGS.display.mode;
+    settings.display.applianceMode = Boolean(el.applianceMode?.checked);
     settings.display.profile = el.displayProfile?.value === "tablet10" ? "tablet10" : "standard";
     settings.display.animationMode = el.animationMode?.value || DEFAULT_SETTINGS.display.animationMode;
     settings.display.windowOnlyBlur = Boolean(el.windowOnlyBlur?.checked);
@@ -3320,6 +3524,7 @@ window.addEventListener("orientationchange", requestStageScaleUpdate);
 window.visualViewport?.addEventListener("resize", requestStageScaleUpdate);
 window.visualViewport?.addEventListener("scroll", requestStageScaleUpdate);
 restoreDirectCloudCaches();
+setupSettingsLayout();
 applySettingsToUi();
 setupSettings();
 document.addEventListener("toggle", (event) => {
@@ -3348,7 +3553,7 @@ marketRefreshTimer = window.setInterval(() => {
   if (!document.hidden && ["market", "hybrid"].includes(settings.homeInfoMode)) void fetchMarketQuotes(true);
 }, 5 * 60 * 1000);
 natureRemoRefreshTimer = window.setInterval(() => {
-  if (!document.hidden && ["remo", "hybrid"].includes(settings.homeInfoMode)) {
+  if (!document.hidden && natureRemoDisplayEnabled()) {
     void loadNatureRemo(true);
     if (settings.switchBot?.token && settings.switchBot?.secret) void loadSwitchBot(false);
     if (settings.smartLife?.accessId && settings.smartLife?.accessSecret) void loadSmartLife(false);
@@ -3356,13 +3561,11 @@ natureRemoRefreshTimer = window.setInterval(() => {
 }, 5 * 60 * 1000);
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden && ["market", "hybrid"].includes(settings.homeInfoMode)) void fetchMarketQuotes(false);
-  if (!document.hidden && ["remo", "hybrid"].includes(settings.homeInfoMode)) {
+  if (!document.hidden && natureRemoDisplayEnabled()) {
     void loadNatureRemo(false);
     if (settings.switchBot?.token && settings.switchBot?.secret) void loadSwitchBot(false);
     if (settings.smartLife?.accessId && settings.smartLife?.accessSecret) void loadSmartLife(false);
   }
 });
 
-if ("serviceWorker" in navigator && location.protocol !== "file:") {
-  navigator.serviceWorker.register("./service-worker.js").catch(() => {});
-}
+window.MoriyaAppInitialized = true;

@@ -8,6 +8,7 @@
   let stream = null, scanTimer = 0;
   let rerun = false, suppressSchedule = false;
   const scheduleCache = new Map(), cancelMarks = new Map();
+  const reminderCache = new Map();
   const idKey = 'moriyaGithubDeviceId';
   let deviceId = localStorage.getItem(idKey);
   if (!deviceId) { deviceId = crypto.randomUUID?.() || 'device-' + Date.now() + '-' + Math.random().toString(36).slice(2); localStorage.setItem(idKey, deviceId); }
@@ -151,12 +152,45 @@
     // Reservation sharing must remain independent of settings conflicts.
     let settingsError;
     try {await sync(force);}catch(error){settingsError=error;}
+    let scheduleError, reminderError;
     try {await syncSchedules();}catch(error){
       window.MoriyaGithubSync.scheduleError=error.message || '予約を同期できませんでした。';
       document.dispatchEvent(new Event('moriya-smart-schedule-sync-status'));
-      throw error;
+      scheduleError = error;
     }
-    if(settingsError)throw settingsError;
+    try {await syncReminderAcknowledgements();}catch(error){
+      window.MoriyaGithubSync.reminderError=error.message || '予定の了解情報を同期できませんでした。';
+      document.dispatchEvent(new Event('moriya-reminder-sync-status'));
+      reminderError = error;
+    }
+    if(settingsError || scheduleError || reminderError)throw settingsError || scheduleError || reminderError;
+  }
+  async function syncReminderAcknowledgements() {
+    // Acknowledgement is bidirectional, even in child / reservation-only mode.
+    const reminders = window.MoriyaCalendarReminders;
+    if (!connection?.enabled || !store || !reminders) return;
+    const currentStore = store, stamp = generation, listed = await currentStore.listReminderAcknowledgements();
+    if (stamp !== generation) return;
+    const present = new Set(listed.map(item => item.ownerId));
+    for (const owner of reminderCache.keys()) if (!present.has(owner)) reminderCache.delete(owner);
+    for (const item of listed) if (reminderCache.get(item.ownerId)?.sha !== item.sha) {
+      const record = await currentStore.readReminderAcknowledgements(item.ownerId);
+      if (stamp !== generation) return;
+      if (record) reminderCache.set(item.ownerId, record);
+    }
+    reminders.mergeAcknowledgements([...reminderCache.values()].flatMap(record => record.data.acknowledged));
+    const own = core.reminderDocument({ version: 1, ownerId: deviceId, acknowledged: reminders.ownMarks() }, deviceId);
+    const old = reminderCache.get(deviceId);
+    // Preserve a previous upload if a device restarted while its local cache was unavailable.
+    own.acknowledged = core.reminderDocument({ version: 1, ownerId: deviceId, acknowledged: [...(old?.data.acknowledged || []), ...own.acknowledged] }, deviceId).acknowledged;
+    if ((old || own.acknowledged.length) && JSON.stringify(old?.data) !== JSON.stringify(own)) {
+      const sha = await currentStore.writeReminderAcknowledgements(deviceId, own, old?.sha);
+      if (stamp !== generation) return;
+      reminderCache.set(deviceId, { sha, data: own });
+    }
+    window.MoriyaGithubSync.lastReminderSync = Date.now();
+    window.MoriyaGithubSync.reminderError = '';
+    document.dispatchEvent(new Event('moriya-reminder-sync-status'));
   }
   async function run() {
     if (!connection?.enabled || document.hidden || busy) { if(busy)rerun=true;plan(); return; }
@@ -169,17 +203,10 @@
     // Changing the interval/name/protection option must not discard the child's merge baseline.
     if(previous?.repo===connection.repo && previous.key===connection.key && previous.scope===connection.scope && previous.role===connection.role)
       for(const key of ['fingerprint','appliedScope','sha','parentId'])if(previous[key]!==undefined)connection[key]=previous[key];
-    generation++; store = new core.Store(connection); persist(); fill(); disableLanAuto();
+    generation++; store = new core.Store(connection); persist(); fill();
+    reminderCache.clear();
     loadCancelMarks();
     if(!scheduleMode())window.MoriyaSmartHome?.clearGithubPeers?.();
-  }
-  function disableLanAuto() {
-    // Two independent automatic writers would defeat the parent/child rule.
-    const lan = document.getElementById('lanSyncMode');
-    if (connection && lan?.value === 'auto') {
-      lan.value = 'manual';
-      lan.dispatchEvent(new Event('change'));
-    }
   }
   $('githubSyncConnect').addEventListener('click', () => lock(async () => {
     const candidate = core.config({ repo: $('githubSyncRepo').value.trim(), token: $('githubSyncToken').value.trim(), key: $('githubSyncKey').value.trim() || core.newKey(), role: $('githubSyncRole').value, scope: $('githubSyncScope').value, interval: Number($('githubSyncInterval').value), enabled: $('githubSyncEnabled').checked,
@@ -206,7 +233,7 @@
   $('githubSyncDisconnect').addEventListener('click', () => {
     if (!confirm('この端末のGitHub接続を解除しますか？GitHub上の暗号化データは残ります。')) return;
     generation++; connection = store = null; clearTimeout(timer); clearTimeout(saveTimer); stopScan(); localStorage.removeItem(storageKey);
-    window.MoriyaSmartHome?.clearGithubPeers?.();scheduleCache.clear();cancelMarks.clear();
+    window.MoriyaSmartHome?.clearGithubPeers?.();scheduleCache.clear();cancelMarks.clear();reminderCache.clear();
     ['githubSyncToken','githubSyncKey','githubSyncInviteText'].forEach(id => { $(id).value = ''; });
     $('githubSyncQr').hidden = true; fill(); status('接続を解除しました。');
   });
@@ -229,7 +256,7 @@
     const invitation=core.parseInvite(text);
     const candidate = { ...invitation, role: 'child', scope: ['all','shared','smartHome','schedules'].includes(invitation.scope)?invitation.scope:'shared', enabled: true, conflictMode:'partial',schedulesEnabled:invitation.schedulesEnabled!==false };
     const testStore = new core.Store(candidate); await testStore.connect(); await testStore.read('sync');
-    configure(candidate);await syncSchedules();status(candidate.scope==='schedules'?'家電予約のみ共有する端末として接続しました。通常設定は変更しません。':'子機として接続しました。通常設定は「親機の設定を取得」で初回反映してください。');
+    configure(candidate);await syncSchedules();await syncReminderAcknowledgements();status(candidate.scope==='schedules'?'家電予約のみ共有する端末として接続しました。通常設定は変更しません。':'子機として接続しました。通常設定は「親機の設定を取得」で初回反映してください。');
   }
   $('githubSyncJoin').addEventListener('click', () => lock(() => join($('githubSyncInviteText').value)));
   function stopScan() { clearTimeout(scanTimer); stream?.getTracks().forEach(track => track.stop()); stream = null; $('githubSyncCamera').srcObject = null; $('githubSyncCamera').hidden = true; $('githubSyncStopScan').hidden = true; }
@@ -288,7 +315,7 @@
   });
   document.addEventListener('visibilitychange',()=>{if(document.hidden){clearTimeout(timer);clearTimeout(saveTimer);stopScan();}else void run();});
   window.addEventListener('online',()=>void run());
-  window.MoriyaGithubSync={deviceId,lastScheduleSync:0,scheduleError:'',enabled:scheduleMode,refresh:run,
+  window.MoriyaGithubSync={deviceId,lastScheduleSync:0,scheduleError:'',lastReminderSync:0,reminderError:'',enabled:scheduleMode,refresh:run,
     cancelSchedule:(id)=>{
       if(!scheduleMode())return false;
       cancelMarks.set(id,Date.now());saveCancelMarks();
@@ -300,6 +327,10 @@
     if(suppressSchedule || !scheduleMode() || !['create','cancel','complete','clear'].includes(event.detail?.kind))return;
     clearTimeout(saveTimer);saveTimer=setTimeout(()=>run(),800);
   });
+  document.addEventListener('moriya-reminder-acknowledged', () => {
+    if (!connection?.enabled) return;
+    clearTimeout(saveTimer); saveTimer = setTimeout(() => run(), 800);
+  });
   $('githubSyncScope').addEventListener('change',()=>fillMode());
   function fillMode(){
     const only=$('githubSyncScope').value==='schedules';
@@ -309,5 +340,5 @@
   }
   document.addEventListener('moriya-settings-visibility',()=>{if(!$('settingsDialog').open){$('githubSyncInviteText').value='';$('githubSyncQr').hidden=true;stopScan();}});
   fill();
-  if(connection) {loadCancelMarks();disableLanAuto();status('GitHub接続設定を読み込みました。');setTimeout(()=>run(),1500);}
+  if(connection) {loadCancelMarks();status('GitHub接続設定を読み込みました。');setTimeout(()=>run(),1500);}
 })();

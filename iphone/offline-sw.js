@@ -1,5 +1,5 @@
 "use strict";
-const VERSION = '20261001-offline-1';
+const VERSION = '2.0.0';
 const PREFIX = 'moriya-navi-shell-';
 const SHELL = PREFIX + VERSION;
 const PHOTOS = 'moriya-navi-selected-photos';
@@ -13,7 +13,7 @@ const urls = [
 const photoPrefix = new URL('../assets/backgrounds/', base).href;
 let photoTask = Promise.resolve();
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(SHELL).then(cache => cache.addAll(urls)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(SHELL).then(cache => cache.addAll(urls)));
 });
 self.addEventListener('activate', event => {
   event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith(PREFIX) && key !== SHELL).map(key => caches.delete(key)))).then(() => self.clients.claim()));
@@ -32,6 +32,7 @@ async function savePhotos(selected) {
   for (const request of await cache.keys()) if (!desired.includes(request.url)) await cache.delete(request);
 }
 self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') { self.skipWaiting(); return; }
   if (event.data?.type !== 'SAVE_PHOTOS') return;
   const task = photoTask.catch(() => {}).then(() => savePhotos(event.data.urls || []));
   photoTask = task;
@@ -40,13 +41,7 @@ self.addEventListener('message', event => {
 async function serve(request) {
   const url = new URL(request.url), shell = await caches.open(SHELL);
   if (request.mode === 'navigate') {
-    try {
-      const response = await fetch(request, {signal:AbortSignal.timeout(2500)});
-      if (!response.ok) throw new Error('Server unavailable');
-      return response;
-    } catch {
-      return await shell.match(new URL('index.html', base).href) || new Response('一度オンラインで開いてください。', {status:503});
-    }
+    return await shell.match(new URL('index.html', base).href) || new Response('一度オンラインで開いてください。', {status:503});
   }
   if (url.href.startsWith(photoPrefix)) {
     const cache = await caches.open(PHOTOS), saved = await cache.match(request, {ignoreSearch:true});

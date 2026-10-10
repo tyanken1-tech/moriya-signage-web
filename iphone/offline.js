@@ -1,6 +1,16 @@
 (() => {
   'use strict';
-  let worker, selected = [], saved = false, booting = true;
+  let worker, selected = [], saved = false, booting = true, registration, reloading = false;
+  function offerUpdate() {
+    if (!registration?.waiting) return;
+    let button = document.getElementById('applyOfflineUpdate');
+    if (!button) {
+      button = document.createElement('button'); button.id='applyOfflineUpdate'; button.type='button';
+      button.textContent='保存済みの新版を適用';
+      button.addEventListener('click', () => registration.waiting?.postMessage({type:'SKIP_WAITING'}));
+      document.querySelector('#offlineStatus')?.after(button);
+    }
+  }
   const status = () => {
     const element = document.querySelector('#offlineStatus');
     if (element) element.textContent = saved ? 'オフライン保存済み：通信できなくても時刻表・ごみ予定・選択中の背景を使えます。' : booting ? 'オフライン用データを保存しています…' : 'オフライン保存を完了できませんでした。通信できるときに開き直してください。';
@@ -28,10 +38,12 @@
   async function boot() {
     if (!('serviceWorker' in navigator)) {booting = false; status(); return;}
     try {
-      let registration = await navigator.serviceWorker.getRegistration('./');
+      registration = await navigator.serviceWorker.getRegistration('./');
       if (registration?.scope !== new URL('./', location.href).href) registration = null;
       try {registration = await navigator.serviceWorker.register('./offline-sw.js', {scope:'./',updateViaCache:'none'});}
       catch (error) {if (!registration?.active) throw error;}
+      if (registration.waiting) registration.waiting.postMessage({type:'SKIP_WAITING'});
+      registration.addEventListener('updatefound', () => registration.installing?.addEventListener('statechange',offerUpdate));
       if (!registration.active) await new Promise((resolve, reject) => {
         const candidate = registration.installing || registration.waiting;
         if (!candidate) return reject(new Error('No offline worker'));
@@ -48,6 +60,10 @@
   }
   window.addEventListener('online', () => {status(); save(); navigator.serviceWorker?.getRegistration('./').then(reg => reg?.update()).catch(() => {});});
   window.addEventListener('offline', status);
-  navigator.serviceWorker?.addEventListener('controllerchange', async () => {worker = (await navigator.serviceWorker.getRegistration('./'))?.active; save();});
+  navigator.serviceWorker?.addEventListener('controllerchange', async () => {
+    if (worker && !reloading) {reloading=true; location.reload(); return;}
+    worker = (await navigator.serviceWorker.getRegistration('./'))?.active; save();
+  });
+  setInterval(() => {if(navigator.onLine && !document.hidden) registration?.update().catch(()=>{});},15*60*1000);
   boot();
 })();

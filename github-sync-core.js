@@ -104,6 +104,17 @@
       .map(item=>({id:item.id,at:item.at}));
     return {version:1,ownerId,name:String(value.name||'別端末').slice(0,40),schedules,cancelled};
   }
+  function reminderDocument(value, ownerId, now = Date.now()) {
+    scheduleDeviceId(ownerId);
+    if (value?.ownerId !== ownerId || value?.version !== 1 || !Array.isArray(value.acknowledged)) throw new Error('予定の了解情報の形式が不正です。');
+    const marks = new Map();
+    for (const mark of value.acknowledged.slice(0, 5000)) {
+      if (!/^[a-f0-9]{64}$/.test(mark?.id || '') || !Number.isFinite(mark.at) || mark.at > now + 60000
+        || !Number.isFinite(mark.until) || mark.until <= now) continue;
+      if (!marks.has(mark.id) || marks.get(mark.id).at < mark.at) marks.set(mark.id, { id: mark.id, at: mark.at, until: mark.until });
+    }
+    return { version: 1, ownerId, acknowledged: [...marks.values()].sort((a, b) => a.id.localeCompare(b.id)) };
+  }
   class Store {
     constructor(value, fetcher = (...args) => globalThis.fetch(...args)) {
       // Browser/WebView fetch requires its Window receiver, not the Store instance.
@@ -182,6 +193,30 @@
       if(!result?.content?.sha)throw new Error('予約の共有を確認できませんでした。');
       return result.content.sha;
     }
+    async listReminderAcknowledgements() {
+      if (!this.branch) await this.connect();
+      const items = await this.request(`repos/${this.config.repo}/contents/signage-sync/reminder-acks?ref=${encodeURIComponent(this.branch)}`);
+      return (Array.isArray(items) ? items : []).filter(item => item.type === 'file' && /^[A-Za-z0-9-]{1,128}\.enc\.json$/.test(item.name))
+        .map(item => ({ ownerId: item.name.slice(0, -9), sha: item.sha }));
+    }
+    async readReminderAcknowledgements(ownerId) {
+      if (!this.branch) await this.connect();
+      const result = await this.request(`repos/${this.config.repo}/contents/signage-sync/reminder-acks/${scheduleDeviceId(ownerId)}.enc.json?ref=${encodeURIComponent(this.branch)}`);
+      if (!result) return null;
+      const envelope = JSON.parse(decoder.decode(unbase64(result.content.replace(/\s/g, ''))));
+      return { sha: result.sha, data: reminderDocument(await open(envelope, this.config.key, this.config.repo, 'reminder-acks:' + ownerId), ownerId) };
+    }
+    async writeReminderAcknowledgements(ownerId, value, sha) {
+      if (!this.branch) await this.connect();
+      const data = reminderDocument(value, scheduleDeviceId(ownerId));
+      const envelope = await seal(data, this.config.key, this.config.repo, 'reminder-acks:' + ownerId);
+      const result = await this.request(`repos/${this.config.repo}/contents/signage-sync/reminder-acks/${ownerId}.enc.json`, 'PUT', {
+        message: 'Update encrypted calendar acknowledgements', branch: this.branch,
+        content: base64(encoder.encode(JSON.stringify(envelope))), ...(sha ? { sha } : {})
+      });
+      if (!result?.content?.sha) throw new Error('予定の了解情報を共有できませんでした。');
+      return result.content.sha;
+    }
   }
-  return { config, newKey, seal, open, invite, parseInvite, mergeSettings, scheduleDocument, scheduleDeviceId, Store, FILES };
+  return { config, newKey, seal, open, invite, parseInvite, mergeSettings, scheduleDocument, reminderDocument, scheduleDeviceId, Store, FILES };
 });

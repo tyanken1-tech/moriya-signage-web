@@ -21,6 +21,9 @@
     marketItems: $("#newMarketItems"),
     remoWidget: $("#newRemoWidget"),
     remoTemperature: $("#newRemoTemperature"),
+    applianceTemperature: $("#newApplianceTemperature"),
+    applianceTemperatureValue: $("#newApplianceTemperatureValue"),
+    applianceTemperatureUpdated: $("#newApplianceTemperatureUpdated"),
     remoUpdated: $("#newRemoUpdated"),
     remoActions: $("#newRemoActions"),
     hybridMarket: $("#newHybridMarket"),
@@ -110,6 +113,7 @@
   const qaInfo = preview.get("qaInfo") === "1";
   const inactivityDelay = Math.max(500, Number(preview.get("qaIdleMs")) || 60000);
   let activePage = "home";
+  let earthquakePage = null;
   let latestWeather = null;
   let pageTransitionTimer = 0;
   let inactivityTimer = 0;
@@ -294,8 +298,7 @@
   }
 
   function settingsAreOpen() {
-    const dialog = document.querySelector("#settingsDialog");
-    return Boolean(dialog && !dialog.hidden);
+    return [...document.querySelectorAll("#settingsDialog, #garbageReminderDialog")].some(dialog => !dialog.hidden);
   }
 
   function localVideoIsQuietNow(date) {
@@ -620,8 +623,23 @@
     return `<svg ${common}><path d="M16 3v12M9.2 7.7a11 11 0 1 0 13.6 0"/></svg>`;
   }
 
+  function renderApplianceTemperature(payload) {
+    if (!nodes.applianceTemperature) return;
+    nodes.applianceTemperature.hidden = !applianceModeEnabled();
+    const value = payload?.temperature;
+    const temperature = value === null || value === undefined || value === "" ? NaN : Number(value);
+    const available = Number.isFinite(temperature);
+    nodes.applianceTemperatureValue.textContent = available ? temperature.toFixed(1) : "—";
+    nodes.applianceTemperatureUpdated.textContent = available
+      ? `${payload?.stale ? "前回 " : ""}${formatRemoUpdated(payload?.updatedAt)}`
+      : payload?.error ? "接続を確認" : "接続待ち";
+    nodes.applianceTemperature.title = payload?.deviceName || "Nature Remoの室温";
+    nodes.applianceTemperature.classList.toggle("is-stale", Boolean(payload?.stale));
+  }
+
   function renderNatureRemo(payload = window.__moriyaNatureRemoPayload) {
     if (qaInfo) payload = { enabled: ['remo', 'hybrid'].includes(settings.homeInfoMode), temperature: 26.5, updatedAt: Date.now(), actions: [{ label: '間接照明', icon: 'ambientLight', configured: false }] };
+    renderApplianceTemperature(payload);
     if (!nodes.remoWidget || !nodes.remoTemperature || !nodes.remoActions) return;
     const hybrid = settings.homeInfoMode === "hybrid";
     const enabled = payload?.enabled ?? ["remo", "hybrid"].includes(settings.homeInfoMode);
@@ -701,6 +719,22 @@
       : "ごみカレンダーを読み込めませんでした";
   }
 
+  function syncGarbageExpansionOrigin() {
+    if (!nodes.garbageWidget || !nodes.garbageSheet || activePage !== "home") return;
+    // The origin depends on layout/profile. Measure the actual home card,
+    // but use untransformed sheet offsets (its closed fade translates by 10px).
+    const stage = nodes.signage.getBoundingClientRect();
+    const card = nodes.garbageWidget.getBoundingClientRect();
+    const scale = stage.width / 1280;
+    if (!scale || !card.width || !card.height) return;
+    const left = (card.left - stage.left) / scale - nodes.garbageSheet.offsetLeft;
+    const top = (card.top - stage.top) / scale - nodes.garbageSheet.offsetTop;
+    const right = nodes.garbageSheet.offsetWidth - left - card.width / scale;
+    const bottom = nodes.garbageSheet.offsetHeight - top - card.height / scale;
+    nodes.garbageSheet.style.setProperty("--garbage-sheet-closed",
+      `inset(${top.toFixed(2)}px ${right.toFixed(2)}px ${bottom.toFixed(2)}px ${left.toFixed(2)}px)`);
+  }
+
   function openGarbageSchedule() {
     if (!nodes.garbageSheet || garbageSheetOpen) return;
     closeSmartSheet();
@@ -708,6 +742,7 @@
     garbageSheetOpen = true;
     syncSheetDismiss();
     nodes.garbageSheet.hidden = false;
+    syncGarbageExpansionOrigin();
     nodes.garbageSheet.classList.toggle("is-window-expansion", animationMode() === "rich" && windowOnlyBlurEnabled());
     requestAnimationFrame(() => requestAnimationFrame(() => nodes.garbageSheet.classList.add("is-open")));
     resetInactivityTimer();
@@ -718,6 +753,7 @@
     garbageSheetOpen = false;
     syncSheetDismiss();
     const expandsToHome = animationMode() === "rich" && windowOnlyBlurEnabled() && activePage === "home";
+    if (expandsToHome) syncGarbageExpansionOrigin();
     if (!expandsToHome) nodes.garbageSheet.classList.remove("is-window-expansion");
     nodes.garbageSheet.classList.remove("is-open");
     const duration = animationMode() === "off" ? 0 : expandsToHome ? 540 : 220;
@@ -726,6 +762,30 @@
       nodes.garbageSheet.hidden = true;
       nodes.garbageSheet.classList.remove("is-window-expansion");
     }, duration);
+  }
+
+  function alignApplianceToolbar() {
+    const tools = nodes.smartSheet?.querySelector(".new-smart-sheet-tools");
+    if (!tools) return;
+    if (!applianceModeEnabled()) {
+      tools.style.removeProperty("margin-right");
+      return;
+    }
+    const header = nodes.smartSheet.querySelector("header").getBoundingClientRect();
+    const list = nodes.smartList.getBoundingClientRect();
+    const scale = nodes.signage.getBoundingClientRect().width / 1280;
+    if (!scale || !list.width) return;
+    const style = getComputedStyle(nodes.smartList);
+    const columns = style.gridTemplateColumns.split(" ").map(Number.parseFloat);
+    if (columns.length !== 9 || columns.some(value => !Number.isFinite(value))) return;
+    // Both-edge scrollbar gutters are platform dependent. Use the actual grid
+    // tracks so an empty final slot aligns exactly like an occupied final slot.
+    const gutter = Math.max(0, nodes.smartList.offsetWidth - nodes.smartList.clientWidth) / 2;
+    const contentRight = columns.reduce((sum, width) => sum + width, 0)
+      + (Number.parseFloat(style.columnGap) || 0) * 8;
+    const ringRight = list.left + (gutter + (Number.parseFloat(style.paddingLeft) || 0)
+      + contentRight - columns[8] / 2 + 30) * scale;
+    tools.style.marginRight = `${Math.max(0, (header.right - ringRight) / scale).toFixed(2)}px`;
   }
 
   function renderSmartSheet() {
@@ -742,6 +802,7 @@
         ${smartSortMode ? `<button class="new-smart-tile-delete" type="button" data-smart-delete aria-label="${safe(item.label)}を削除"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M18 6 6 18"/></svg></button>` : ""}
       </div>`).join("") : '<p class="new-smart-sheet-empty">操作ボタンはまだありません。右上の＋から追加できます。</p>';
     requestAnimationFrame(() => {
+      alignApplianceToolbar();
       window.MoriyaCenterIcons?.(nodes.smartList);
       nodes.smartList?.querySelectorAll(".new-smart-label-viewport").forEach((viewport) => {
         const label = viewport.querySelector(".new-smart-label-text");
@@ -757,6 +818,31 @@
 
   function syncSheetDismiss() {
     if (nodes.sheetDismiss) nodes.sheetDismiss.hidden = !(garbageSheetOpen || smartSheetOpen);
+  }
+
+  function applianceModeEnabled() {
+    return settings.display.mode === "new" && Boolean(settings.display.applianceMode);
+  }
+
+  function syncApplianceMode() {
+    const enabled = applianceModeEnabled();
+    const changed = nodes.signage.classList.contains("is-appliance-mode") !== enabled;
+    nodes.signage.classList.toggle("is-appliance-mode", enabled);
+    renderApplianceTemperature(window.__moriyaNatureRemoPayload);
+    if (!changed) return;
+    // A permanent home panel travels with the page during finger-following
+    // navigation; ordinary expanded dialogs stay in the floating glass layer.
+    const host = enabled ? nodes.pages.find(page => page.dataset.page === "home") : $("#newFloatingLayer");
+    host?.append(nodes.smartSheet);
+    smartSheetOpen = false;
+    smartSortMode = false;
+    nodes.smartEditor.hidden = true;
+    showSmartReservations(false);
+    nodes.smartSheet.classList.remove("is-window-expansion");
+    nodes.smartSheet.classList.toggle("is-open", enabled);
+    nodes.smartSheet.hidden = !enabled;
+    syncSheetDismiss();
+    renderSmartSheet();
   }
 
   function showSmartToast(message) {
@@ -959,6 +1045,9 @@
         drag.ghost.removeAttribute("tabindex");
         drag.ghost.setAttribute("aria-hidden", "true");
         nodes.signage.append(drag.ghost);
+        drag.ghost.style.width = `${drag.tile.offsetWidth}px`;
+        drag.ghost.style.height = `${drag.tile.offsetHeight}px`;
+        drag.ghost.classList.toggle("is-appliance-tile", applianceModeEnabled());
         drag.tile.classList.add("is-drag-origin");
       }
       event.preventDefault();
@@ -1008,6 +1097,7 @@
   }
 
   function openSmartSheet() {
+    if (applianceModeEnabled()) return;
     if (!nodes.smartSheet || smartSheetOpen) return;
     closeGarbageSchedule();
     smartSheetOpen = true;
@@ -1022,6 +1112,13 @@
   }
 
   function closeSmartSheet() {
+    if (applianceModeEnabled()) {
+      smartSortMode = false;
+      nodes.smartEditor.hidden = true;
+      showSmartReservations(false);
+      renderSmartSheet();
+      return;
+    }
     if (!nodes.smartSheet || !smartSheetOpen) return;
     smartSheetOpen = false;
     syncSheetDismiss();
@@ -1032,7 +1129,7 @@
     nodes.smartSheet.classList.remove("is-open");
     const duration = animationMode() === "off" ? 0 : expandsToHome ? 540 : 220;
     window.setTimeout(() => {
-      if (smartSheetOpen) return;
+      if (smartSheetOpen || applianceModeEnabled()) return;
       nodes.smartSheet.hidden = true;
       nodes.smartSheet.classList.remove("is-window-expansion");
     }, duration);
@@ -1458,13 +1555,21 @@
   function commitPageState(name) {
     activePage = name;
     nodes.signage.dataset.activePage = name;
+    if (applianceModeEnabled() && name !== "home") closeSmartSheet();
     if (name === "home") {
+      // Never let a stale modal-close state hide the permanent appliance page.
+      if (applianceModeEnabled()) {
+        nodes.smartSheet.hidden = false;
+        nodes.smartSheet.classList.remove("is-window-expansion");
+        nodes.smartSheet.classList.add("is-open");
+      }
       isPinned = false;
       syncPinButtons();
       resetCalendarView();
       resetTrainScroll(false);
     }
     resetInactivityTimer();
+    if (earthquakePage) document.dispatchEvent(new CustomEvent("moriya-page-change", { detail: { page: name } }));
   }
 
   function cancelMotionGlassRelease() {
@@ -1521,7 +1626,7 @@
       proxy.style.transition = transition;
       proxy.style.opacity = String(opacity);
       proxy.style.left = `${(geometry.left + offset).toFixed(2)}px`;
-      proxy.style.top = `${geometry.top.toFixed(2)}px`;
+      proxy.style.top = `${(geometry.top + (Number(pageState?.offsetY) || 0)).toFixed(2)}px`;
       proxy.style.width = `${geometry.width.toFixed(2)}px`;
       proxy.style.height = `${geometry.height.toFixed(2)}px`;
     }
@@ -1634,6 +1739,7 @@
 
   function showPage(name) {
     if (name === activePage || isTransitioning) return false;
+    if (earthquakePage && (name === "earthquake" || activePage === "earthquake")) return navigateEarthquake(name);
     closeTrainDetail();
     const mode = animationMode();
     if (mode === "off") return showPageImmediately(name);
@@ -1683,10 +1789,10 @@
 
   function resetInactivityTimer() {
     clearTimeout(inactivityTimer);
+    if (earthquakePage?.hold?.() && activePage === "earthquake") return;
     if (isPinned && activePage !== "home") return;
     inactivityTimer = window.setTimeout(() => {
-      const settingsDialog = document.querySelector("#settingsDialog");
-      if (settingsDialog && !settingsDialog.hidden) {
+      if (settingsAreOpen()) {
         resetInactivityTimer();
         return;
       }
@@ -1699,6 +1805,74 @@
     if (activePage === "commute" && dx < 0) return "home";
     if (activePage === "weather" && dx > 0) return "home";
     return null;
+  }
+
+  // Beta-only vertical navigation. The ordinary horizontal path stays intact.
+  function verticalTarget(dy) {
+    if (!earthquakePage) return null;
+    if (activePage === "home" && dy < 0) return "earthquake";
+    if (activePage === "earthquake" && dy > 0) return "home";
+    return null;
+  }
+
+  function renderEarthquakeDrag(state) {
+    const name = verticalTarget(state.dy);
+    if (!name || animationMode() !== "rich") return;
+    if (!state.verticalPrepared) {
+      beginMotionGlass();
+      window.dispatchEvent(new Event("moriya-earthquake-reveal"));
+      state.verticalPrepared = true;
+      nodes.signage.classList.add("is-rich-dragging");
+    }
+    const current = nodes.pages.find((p) => p.dataset.page === activePage);
+    const next = nodes.pages.find((p) => p.dataset.page === name);
+    const scale = nodes.signage.getBoundingClientRect().height / 800 || 1;
+    const offset = Math.max(-800, Math.min(800, state.dy / scale));
+    const base = name === "earthquake" ? 800 : -800;
+    state.verticalOffset = offset;
+    state.targetName = name;
+    current.style.transition = next.style.transition = "none";
+    next.classList.add("is-drag-preview");
+    current.style.transform = `translate3d(0,${offset}px,0)`;
+    next.style.transform = `translate3d(0,${base + offset}px,0)`;
+    syncLiveGlassProxies({ [activePage]: { offsetY: offset, opacity: 1 }, [name]: { offsetY: base + offset, opacity: 1 } });
+  }
+
+  function navigateEarthquake(name, startOffset = 0, commit = true) {
+    const previousName = activePage;
+    const current = nodes.pages.find((p) => p.dataset.page === previousName);
+    const next = nodes.pages.find((p) => p.dataset.page === name);
+    if (!current || !next) return false;
+    const mode = animationMode();
+    if (mode === "off") return commit ? showPageImmediately(name) : (clearDragPresentation(), true);
+    const direction = name === "earthquake" ? 1 : -1;
+    const duration = mode === "rich" ? 540 : 340;
+    if (!nodes.signage.classList.contains("is-rich-dragging")) beginMotionGlass();
+    window.dispatchEvent(new Event("moriya-earthquake-reveal"));
+    isTransitioning = true;
+    nodes.signage.classList.add("is-transitioning", "is-rich-settling");
+    next.classList.add("is-active", "is-drag-preview");
+    next.setAttribute("aria-hidden", "false");
+    current.style.transition = next.style.transition = "none";
+    current.style.transform = `translate3d(0,${startOffset}px,0)`;
+    next.style.transform = `translate3d(0,${direction * 800 + startOffset}px,0)`;
+    syncLiveGlassProxies({ [previousName]: { offsetY: startOffset, opacity: 1 }, [name]: { offsetY: direction * 800 + startOffset, opacity: 1 } });
+    void next.offsetWidth;
+    const transition = `transform ${duration}ms cubic-bezier(.18,.76,.16,1)`;
+    current.style.transition = next.style.transition = transition;
+    requestAnimationFrame(() => {
+      if (!earthquakePage) return;
+      current.style.transform = `translate3d(0,${commit ? -direction * 800 : 0}px,0)`;
+      next.style.transform = `translate3d(0,${commit ? 0 : direction * 800}px,0)`;
+      syncLiveGlassProxies({ [previousName]: { offsetY: commit ? -direction * 800 : 0, opacity: 1 }, [name]: { offsetY: commit ? 0 : direction * 800, opacity: 1 } }, `top ${duration}ms cubic-bezier(.18,.76,.16,1)`);
+    });
+    clearTimeout(pageTransitionTimer);
+    pageTransitionTimer = window.setTimeout(() => {
+      if (commit) commitPageState(name);
+      isTransitioning = false;
+      clearDragPresentation();
+    }, duration + 35);
+    return true;
   }
 
   function isCommittedSwipe(dx, dy, elapsed) {
@@ -1812,6 +1986,7 @@
       closeSmartSheet();
     });
     document.addEventListener("pointerdown", (event) => {
+      if (event.target.closest(".settings-dialog")) return;
       if (nodes.signage?.contains(event.target) || (!timerTarget && !garbageSheetOpen && !smartSheetOpen)) return;
       outsideDismissUntil = performance.now() + 500;
       event.preventDefault();
@@ -1820,6 +1995,7 @@
       else { closeGarbageSchedule(); closeSmartSheet(); }
     }, true);
     document.addEventListener("click", (event) => {
+      if (event.target.closest(".settings-dialog")) return;
       if (nodes.signage?.contains(event.target) || performance.now() > outsideDismissUntil) return;
       event.preventDefault();
       event.stopPropagation();
@@ -2013,6 +2189,7 @@
 
     nodes.signage.addEventListener("pointerdown", (event) => {
       if (isTransitioning) return;
+      if (earthquakePage && event.target.closest(".eq-page button, .eq-scroll, .eq-controls")) return;
       if (event.target.closest(".new-train-board.is-detail, .new-train-back, .new-home-button, .new-pin-button, .new-settings-button, .new-smart-tile, .new-smart-editor, .new-month-step, .new-month-current, [data-close-day], [data-open-today-schedule], input, select, textarea, a")) return;
       dragState = {
         pointerId: event.pointerId,
@@ -2029,6 +2206,15 @@
       if (!dragState || dragState.pointerId !== event.pointerId) return;
       const dx = Math.max(-1280, Math.min(1280, event.clientX - dragState.startX));
       const dy = event.clientY - dragState.startY;
+      if (earthquakePage && (dragState.vertical || (!dragState.moved && Math.abs(dy) >= 8 && Math.abs(dy) > Math.abs(dx) * 1.15 && verticalTarget(dy)))) {
+        dragState.vertical = true;
+        dragState.moved = true;
+        dragState.dy = dy;
+        nodes.signage.setPointerCapture?.(event.pointerId);
+        renderEarthquakeDrag(dragState);
+        event.preventDefault();
+        return;
+      }
       if (!dragState.moved && Math.abs(dx) < 4) return;
       if (!dragState.moved && Math.abs(dx) < Math.abs(dy) * 0.8) return;
       dragState.moved = true;
@@ -2047,6 +2233,15 @@
       const dx = dragState.moved ? dragState.dx : event.clientX - dragState.startX;
       const dy = dragState.moved ? dragState.dy : event.clientY - dragState.startY;
       const elapsed = performance.now() - dragState.startedAt;
+      if (earthquakePage && dragState.vertical) {
+        suppressClickUntil = performance.now() + 420;
+        const target = dragState.targetName || verticalTarget(dy);
+        const commit = Math.abs(dy) >= (elapsed <= 420 ? 24 : 42);
+        if (target) navigateEarthquake(target, dragState.verticalOffset || 0, commit);
+        else clearDragPresentation();
+        dragState = null;
+        return;
+      }
       if (animationMode() === "rich" && dragState.moved) {
         if (dragRenderRaf) cancelAnimationFrame(dragRenderRaf);
         renderRichDragFrame();
@@ -2066,6 +2261,13 @@
       else if (activePage === "weather" && dx > 0) showPage("home");
     });
     nodes.signage.addEventListener("pointercancel", () => {
+      if (earthquakePage && dragState?.vertical) {
+        const target = dragState.targetName || verticalTarget(dragState.dy);
+        if (target) navigateEarthquake(target, dragState.verticalOffset || 0, false);
+        else clearDragPresentation();
+        dragState = null;
+        return;
+      }
       if (dragState?.moved && animationMode() === "rich") {
         if (dragRenderRaf) cancelAnimationFrame(dragRenderRaf);
         renderRichDragFrame();
@@ -2119,6 +2321,7 @@
       .filter(Boolean).forEach((node) => floatingLayer.append(node));
   }
   setupNavigation();
+  syncApplianceMode();
   syncNewClock();
   renderNewTrains();
   renderNewCalendars();
@@ -2132,6 +2335,7 @@
   if (requestedPage === "weather") showPage("weather");
 
   window.addEventListener("resize", updateNewEventScroll);
+  window.addEventListener("resize", () => requestAnimationFrame(alignApplianceToolbar));
   window.addEventListener('resize', () => { updateMarketLabels(nodes.marketItems); updateMarketLabels(nodes.hybridMarket); });
   document.addEventListener("visibilitychange", () => {
     scheduleBackgroundRotation(backgroundRotationItemCount);
@@ -2182,10 +2386,38 @@
   });
 
   window.MoriyaNewUi = {
+    registerEarthquakePage(page, options) {
+      if (earthquakePage) return;
+      earthquakePage = options;
+      nodes.pages.push(page);
+      const pin = page.querySelector("[data-pin-view]");
+      if (pin) {
+        nodes.pinButtons.push(pin);
+        pin.addEventListener("click", () => { isPinned = !isPinned; syncPinButtons(); resetInactivityTimer(); });
+        syncPinButtons();
+      }
+      nodes.signage.classList.add("has-earthquake-beta");
+    },
+    unregisterEarthquakePage() {
+      if (!earthquakePage) return;
+      if (activePage === "earthquake" || isTransitioning || dragState?.vertical) showPageImmediately("home");
+      nodes.pages = nodes.pages.filter((page) => page.dataset.page !== "earthquake");
+      nodes.pinButtons = nodes.pinButtons.filter((button) => !button.closest(".eq-page"));
+      earthquakePage = null;
+      dragState = null;
+      nodes.signage.classList.remove("has-earthquake-beta");
+    },
+    syncApplianceMode,
     renderCalendars: renderNewCalendars,
     renderTrains: renderNewTrains,
     showPage,
     getActivePage: () => activePage,
+    isPagePinned: () => isPinned,
+    cancelEarthquakeDrag() {
+      if (!earthquakePage || !dragState) return;
+      dragState = null;
+      clearDragPresentation();
+    },
     resetInactivityTimer,
     renderMarket,
     renderNatureRemo,

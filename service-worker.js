@@ -1,4 +1,4 @@
-const CACHE_NAME = "moriya-signage-v96-preserve-mobile-offline";
+const CACHE_NAME = "moriya-signage-v2.0.0";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -7,6 +7,7 @@ const APP_SHELL = [
   "./iphone/iphone.js",
   "./iphone/viewport.js",
   "./iphone/sheet-drag.js",
+  "./iphone/offline.js",
   "./iphone/manifest.webmanifest",
   "./assets/icons/moriya-navi-180.png",
   "./assets/icons/moriya-navi-192.png",
@@ -15,12 +16,21 @@ const APP_SHELL = [
   "./styles.css",
   "./new-ui.css",
   "./app.js",
+  "./calendar-reminders-core.js",
+  "./calendar-reminders.js",
+  "./garbage-reminders.js",
   "./new-ui.js",
+  "./earthquake-beta.js",
+  "./earthquake-core.js",
+  "./earthquake-runtime.js",
+  "./earthquake-beta.css",
+  "./data/earthquake-regions.json",
+  "./data/earthquake-regions.geojson",
+  "./web-updates.js",
   "./github-sync-core.js",
   "./github-sync.js",
   "./assets/vendor/qrcode-core.js",
   "./assets/vendor/jsQR.js",
-  "./lan-sync.js",
   "./app-update-core.js",
   "./app-updates.js",
   "./release-config.json",
@@ -105,7 +115,6 @@ const APP_SHELL = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -117,22 +126,24 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
   // Cloud APIs must never receive the offline HTML fallback or enter app caches.
-  if (new URL(request.url).origin !== location.origin) return;
+  const url = new URL(request.url), base = new URL('./', self.location.href);
+  if (url.origin !== base.origin || url.pathname.includes('/api/')) return;
   if (request.destination === "video") return;
 
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (new URL(request.url).origin === location.origin) {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-        }
-        return response;
-      })
-      .catch(() => caches.match(request).then((cached) => cached || caches.match("./index.html")))
-  );
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    const saved = await cache.match(request, {ignoreSearch:true});
+    if (saved) return saved;
+    if (request.mode === 'navigate' && (url.pathname === base.pathname || url.pathname === base.pathname+'index.html')) return cache.match(new URL('index.html',base).href);
+    // No API responses, tokens, user uploads or arbitrary HTML fallbacks.
+    return fetch(request);
+  })());
 });

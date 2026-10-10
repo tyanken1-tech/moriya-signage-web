@@ -57,6 +57,10 @@
     try {
       installed = await plugin.getAppInfo();
       $("appCurrentVersion").textContent = `${installed.version}（内部番号 ${installed.versionCode}）`;
+      if (plugin.getWebUpdateState) {
+        const runtime = await plugin.getWebUpdateState();
+        $("appCurrentVersion").textContent = `${runtime.version}（APK ${runtime.nativeVersion}）`;
+      }
       let config = {};
       try { config = await (await fetch("./release-config.json")).json(); } catch {}
       source.value = localStorage.getItem(sourceKey) ?? config.updateManifestUrl ?? "";
