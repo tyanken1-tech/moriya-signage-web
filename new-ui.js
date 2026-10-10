@@ -2386,6 +2386,7 @@
   });
 
   window.MoriyaNewUi = {
+    getWeatherLocationName: () => settings.weather?.name || '',
     registerEarthquakePage(page, options) {
       if (earthquakePage) return;
       earthquakePage = options;

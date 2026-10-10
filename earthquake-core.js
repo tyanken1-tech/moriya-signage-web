@@ -9,6 +9,35 @@
   const LABELS = { "-1": "不明", 0: "0", 10: "1", 20: "2", 30: "3", 40: "4", 45: "5弱", 50: "5強", 55: "6弱", 60: "6強", 70: "7" };
   const DEFAULTS = { enabled: false, pref: "茨城県", area: "301", thresholdEnabled: true, threshold: 40, warningEnabled: true, nationwide: false, sound: "off", historyMin: 20 };
   const numeric = (v) => v === null || v === undefined || v === "" || !Number.isFinite(Number(v)) ? null : Number(v);
+  function weatherMunicipalityMatch(weatherName, prefecture, pointName, prefectures = []) {
+    const normalize = value => String(value ?? '').normalize('NFKC').replace(/\s/g, '');
+    let municipality = normalize(weatherName);
+    const weatherPref = prefectures.find(pref => municipality.startsWith(normalize(pref)));
+    if (weatherPref) {
+      if (normalize(weatherPref) !== normalize(prefecture)) return null;
+      municipality = municipality.slice(normalize(weatherPref).length);
+    }
+    // Weather labels may include a county; observation labels usually do not.
+    municipality = municipality.replace(/^.+郡(?=.+[町村]$)/, '');
+    if (!/^.+[市町村区]$/.test(municipality)) return null;
+    const name = String(pointName ?? '');
+    const prefix = String(prefecture ?? '');
+    const start = prefix && name.startsWith(prefix) ? prefix.length : 0;
+    // Match the municipality prefix, not a similarly named observation site.
+    if (name.slice(start, start + municipality.length) !== municipality) return null;
+    return { start, end: start + municipality.length };
+  }
+  function localObservation(event, region, weatherName, prefectures = []) {
+    if (!event?.historical) return { scale: -1, weatherFallback: false };
+    const rows = observations(event);
+    const regional = Math.max(-1, ...rows.filter(point => point.isArea && point.name === region.name).map(point => point.scale));
+    if (regional >= 0) return { scale: regional, weatherFallback: false };
+    const matches = rows.filter(point => !point.isArea && weatherMunicipalityMatch(weatherName, point.pref, point.name, prefectures));
+    if (!matches.length) return { scale: -1, weatherFallback: false };
+    const strongest = matches.reduce((left, right) => right.scale > left.scale ? right : left);
+    const match = weatherMunicipalityMatch(weatherName, strongest.pref, strongest.name, prefectures);
+    return { scale: strongest.scale, weatherFallback: true, municipality: strongest.name.slice(match.start, match.end) };
+  }
   function scale(value, encoded = false) {
     if (encoded) { const n = numeric(value); return n !== null && SCALES.includes(Math.floor(n)) ? Math.floor(n) : -1; }
     const s = String(value ?? "").replace(/震度|以上|\s/g, "").replace(/[−ー－]/g, "-").replace(/＋/g, "+");
@@ -164,5 +193,5 @@
       final: prior.final || next.final, cancelled: prior.cancelled || next.cancelled };
   }
   return { SCALES, DEFAULTS, numeric, scale, label, time, options, normalizeWolfx, normalizeP2P, history, histories,
-    matchingAreas, localScale, trigger, fresh, endTime, hasLocation, surfaceRadius, sArrival, zoomView, observations, observationGroups, destination, merge };
+    matchingAreas, localScale, localObservation, trigger, fresh, endTime, hasLocation, surfaceRadius, sArrival, zoomView, observations, observationGroups, weatherMunicipalityMatch, destination, merge };
 });

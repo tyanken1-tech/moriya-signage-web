@@ -1,4 +1,4 @@
-const CACHE_NAME = "moriya-signage-v2.0.0";
+const CACHE_NAME = "moriya-signage-v2.1.0";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -140,6 +140,11 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
+    // Local development uses current files even before its old worker has been
+    // unregistered. Hosted PWA snapshots retain their atomic cache-first policy.
+    if (['127.0.0.1','localhost','[::1]'].includes(url.hostname)) {
+      try { const response = await fetch(request, {cache:'no-store'}); if (response.ok) return response; } catch {}
+    }
     const saved = await cache.match(request, {ignoreSearch:true});
     if (saved) return saved;
     if (request.mode === 'navigate' && (url.pathname === base.pathname || url.pathname === base.pathname+'index.html')) return cache.match(new URL('index.html',base).href);

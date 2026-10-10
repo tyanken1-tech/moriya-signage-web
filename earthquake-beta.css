@@ -19,13 +19,13 @@
 .eq-map-heading { position: absolute; inset: 16px 18px auto; z-index: 1; display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
 .eq-map-heading button { display: flex; align-items: center; gap: 6px; background: rgba(9,20,25,.45); border: 1px solid rgba(255,255,255,.16); padding: 7px 10px; font-size: 11px; }
 #eqMap { display: block; width: 828px; height: 650px; touch-action: none; }
-.eq-land { fill: rgba(156,191,193,.40); stroke: rgba(213,236,237,.78); stroke-width: .85px; fill-opacity: .9; }
-.eq-land-observed { fill-opacity: 1; stroke: rgba(240,249,250,.90); }
+.eq-land { fill: rgba(156,191,193,.40); stroke: rgba(213,236,237,.30); stroke-width: .55px; fill-opacity: .9; }
+.eq-land-observed { fill-opacity: 1; stroke: rgba(240,249,250,.38); }
 .eq-map-panel { background-color: rgba(7,22,29,.30); }
 .eq-intensity-legend { position: absolute; left: 20px; bottom: 42px; display: flex; gap: 10px; align-items: center; padding: 7px 9px; border-radius: 6px; background: rgba(7,22,29,.8); font-size: 10px; pointer-events: none; }
 .eq-intensity-legend span { display: flex; align-items: center; gap: 4px; }
 .eq-intensity-legend i { width: 10px; height: 10px; border-radius: 2px; border: 1px solid rgba(255,255,255,.35); }
-.eq-land-selected { stroke: #dbece2; stroke-width: 1.6px; fill: rgba(187,224,199,.40); }
+.eq-land-selected { stroke: rgba(219,236,226,.55); stroke-width: .8px; fill: rgba(187,224,199,.40); }
 .eq-wave-p { stroke: #a5dbe9; fill: rgba(121,205,235,.05); stroke-width: 1.5px; }
 .eq-wave-s { stroke: #ffc58b; fill: rgba(255,174,103,.045); stroke-width: 2px; }
 .eq-marker path { fill: none; stroke: #ffc58b; stroke-width: 3; stroke-linecap: round; }
@@ -90,7 +90,8 @@
 .eq-observations-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .eq-observations-head span { font-size: 12px; color: rgba(255,255,255,.6); }
 .eq-observations-head h3 { margin: 5px 0 0; font-size: 19px; }
-.eq-observations-head button { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,.24); background: rgba(255,255,255,.1); font: inherit; font-size: 24px; }
+.eq-observations-head button { flex: none; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; line-height: 1; border-radius: 50%; border: 1px solid rgba(255,255,255,.24); background: rgba(255,255,255,.1); font: inherit; }
+.eq-observations-head button svg { display: block; width: 20px; height: 20px; }
 #eqObservationsSummary { font-size: 11px; color: rgba(255,255,255,.65); }
 .eq-observations-list { min-height: 0; overflow: auto; flex: 1; scrollbar-width: thin; touch-action: pan-y; }
 .eq-observed-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,.12); }
@@ -101,5 +102,6 @@
 .eq-observed-pref h5 { margin: 12px 0 5px; font-size: 13px; color: rgba(255,255,255,.70); }
 .eq-observed-pref ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 12px; }
 .eq-observed-pref li { font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
+.eq-weather-municipality { color: #ff8585; background: rgba(255,102,102,.14); border-radius: 3px; padding: 1px 3px; font-weight: 700; }
 .eq-observed-pref small { font-size: 10px; color: rgba(255,255,255,.65); }
 .eq-arrival[hidden], .eq-observations[hidden] { display: none; }

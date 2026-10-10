@@ -54,7 +54,7 @@
         <svg id="eqMap" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img" aria-label="気象庁の地理データによる日本地図"><defs><radialGradient id="eqOcean"><stop stop-color="#77bec0" stop-opacity=".10"/><stop offset="1" stop-color="#77bec0" stop-opacity="0"/></radialGradient></defs><rect width="828" height="650" fill="url(#eqOcean)"/><g id="eqGeography"></g><g id="eqWaves"></g><g id="eqMarkers"></g></svg>
         <div class="eq-map-zoom"><button type="button" id="eqZoomIn" aria-label="地図を拡大">＋</button><button type="button" id="eqZoomOut" aria-label="地図を縮小">−</button></div>
         <div class="eq-arrival" id="eqArrival" hidden><span>S波の到着目安</span><strong id="eqArrivalSeconds"></strong><small id="eqArrivalRegion"></small></div>
-        <section class="eq-observations eq-scroll" id="eqObservations" aria-label="過去の地震の各地の観測震度" hidden><div class="eq-observations-head"><div><span>各地の観測震度</span><h3 id="eqObservationsName"></h3></div><button type="button" id="eqObservationsClose" aria-label="各地の震度を閉じる">×</button></div><p id="eqObservationsSummary"></p><div class="eq-observations-list" id="eqObservationsList"></div></section>
+        <section class="eq-observations eq-scroll" id="eqObservations" aria-label="過去の地震の各地の観測震度" hidden><div class="eq-observations-head"><div><span>各地の観測震度</span><h3 id="eqObservationsName"></h3></div><button type="button" id="eqObservationsClose" aria-label="各地の震度を閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M18 6 6 18"/></svg></button></div><p id="eqObservationsSummary"></p><div class="eq-observations-list" id="eqObservationsList"></div></section>
         <div class="eq-intensity-legend" aria-label="地域の震度の色分け"><span>震度</span>${[[10,'0–1'],[20,'2–3'],[40,'4'],[45,'5弱・5強'],[55,'6弱–7']].map(([scale,label]) => `<span><i style="background:${color(scale)}"></i>${label}</span>`).join('')}</div>
         <div class="eq-legend"><span><i class="eq-dot eq-p"></i>P波（推定）</span><span><i class="eq-dot eq-s"></i>S波（推定）</span><span><i class="eq-dot eq-region"></i>設定地域</span><span id="eqWaveAge"></span></div>
       </section><aside class="eq-sidebar">
@@ -305,12 +305,18 @@
     function renderObservations(event) {
       $("eqObservations").hidden = !detailsOpen || !event?.historical;
       if(!event?.historical || !detailsOpen) return;
-      const key=event.id+":"+event.issued+":"+event.points.length;
+      const weatherName = ui.getWeatherLocationName?.() || '';
+      const key=event.id+":"+event.issued+":"+event.points.length+":"+weatherName;
       if(detailsKey===key)return;detailsKey=key;
       const rows=C.observations(event);
       $("eqObservationsName").textContent=event.name;
       $("eqObservationsSummary").textContent=`${fmt(event.origin,true)} · 最大震度${C.label(event.maxScale)} · ${rows.length}地点`;
-      $("eqObservationsList").innerHTML=rows.length?C.observationGroups(event).map(group=>`<section class="eq-observed-group"><h4 style="--eq-scale-color:${color(group.scale)}">震度${C.label(group.scale)}</h4>${group.prefectures.map(pref=>`<div class="eq-observed-pref"><h5>${escape(pref.pref)}</h5><ul>${pref.places.map(place=>`<li>${escape(place.name)}${place.isArea ? '<small>（地域集計）</small>' : ''}</li>`).join('')}</ul></div>`).join('')}</section>`).join(''):'<p class="eq-empty">各地の観測震度はこの情報に含まれていません。</p>';
+      const placeLabel = (place, pref) => {
+        const match = !place.isArea && C.weatherMunicipalityMatch(weatherName, pref, place.name, catalog.prefs);
+        if (!match) return escape(place.name);
+        return `${escape(place.name.slice(0,match.start))}<mark class="eq-weather-municipality">${escape(place.name.slice(match.start,match.end))}</mark>${escape(place.name.slice(match.end))}`;
+      };
+      $("eqObservationsList").innerHTML=rows.length?C.observationGroups(event).map(group=>`<section class="eq-observed-group"><h4 style="--eq-scale-color:${color(group.scale)}">震度${C.label(group.scale)}</h4>${group.prefectures.map(pref=>`<div class="eq-observed-pref"><h5>${escape(pref.pref)}</h5><ul>${pref.places.map(place=>`<li>${placeLabel(place,pref.pref)}${place.isArea ? '<small>（地域集計）</small>' : ''}</li>`).join('')}</ul></div>`).join('')}</section>`).join(''):'<p class="eq-empty">各地の観測震度はこの情報に含まれていません。</p>';
     }
     function render() {
       if (destroyed) return;
@@ -339,8 +345,10 @@
         const status = event.historical ? "過去の地震 · 観測値" : event.cancelled ? "速報取消" : Date.now() >= C.endTime(event) ? "速報終了" : event.warning ? "緊急地震速報 · 警報情報" : "緊急地震速報 · 予報情報";
         $("eqState").textContent = status;
         $("eqName").textContent = event.name;
-        const local = event.historical ? Math.max(-1,...observed.filter(p=>p.isArea && p.name===r.name).map(p=>p.scale)) : C.localScale(event, r);
-        $("eqIntensityCaption").textContent = event.historical ? "設定地域の観測震度" : "設定地域の予想震度";
+        const observation = event.historical ? C.localObservation(event, r, ui.getWeatherLocationName?.() || '', catalog.prefs) : null;
+        const local = event.historical ? observation.scale : C.localScale(event, r);
+        $("eqIntensityCaption").textContent = observation?.weatherFallback ? "天気設定地点の観測震度" : event.historical ? "設定地域の観測震度" : "設定地域の予想震度";
+        if (observation?.weatherFallback) $("eqLocalName").textContent = `${observation.municipality}（市町村内の最大）`;
         $("eqMaxCaption").textContent = event.historical ? "最大観測震度" : "最大予想震度";
         $("eqLocalIntensity").textContent = C.label(local);
         $("eqLocalIntensity").style.color = color(local);
@@ -350,6 +358,7 @@
         $("eqMagnitude").textContent = `M${event.magnitude === null || event.magnitude < 0 ? "不明" : event.magnitude.toFixed(1)} / ${event.depth === null || event.depth < 0 ? "不明" : event.depth + "km"}`;
         $("eqUpdate").textContent = event.historical ? "観測情報" : `第${event.serial || "—"}報 · ${fmt(event.issued)}`;
         $("eqMessage").textContent = event.cancelled ? "この速報は取り消されました。" : event.historical ? "観測後の地震情報です。P波・S波のライブ表示は行いません。" : local < 0 ? "この地域の予想震度は配信に含まれていません。" : "予想震度・波の位置は参考値です。身の安全を確保してください。";
+        if (observation?.weatherFallback && !event.cancelled) $("eqMessage").textContent = `設定地域の集計がないため、${observation.municipality}内の観測地点の最大震度を表示しています。`;
         if (event.test) $("eqMessage").textContent = "訓練／テスト表示です。実際の地震ではありません。";
         if (soundUnavailable && auto) $("eqMessage").textContent += " 音を有効にするには画面を操作してください。";
       }

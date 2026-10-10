@@ -2,6 +2,7 @@
   'use strict';
   const native = window.Capacitor?.isNativePlatform?.();
   const plugin = window.Capacitor?.Plugins?.MoriyaSignage;
+  const localPreview = !native && ['127.0.0.1','localhost','[::1]'].includes(location.hostname);
   const interval = 15 * 60 * 1000;
   let busy = false, lastCheck = 0, registration, reloading = false;
   function notice(text, action) {
@@ -42,6 +43,17 @@
     } finally { busy=false; }
   }
   async function boot() {
+    if (localPreview) {
+      // A working-tree preview must not be pinned to the last release snapshot.
+      // Unregister only this app's workers, leaving localStorage/settings intact.
+      const scope = new URL('./',location.href).href;
+      const registrations = await navigator.serviceWorker?.getRegistrations?.() || [];
+      for (const reg of registrations) {
+        if (reg.scope === scope || reg.scope === new URL('iphone/',scope).href) await reg.unregister();
+      }
+      if (navigator.serviceWorker?.controller && !reloading) { reloading=true; location.reload(); }
+      return;
+    }
     const host = document.getElementById('appUpdateStatus');
     if (host) {
       const button=document.createElement('button'); button.type='button'; button.textContent='Web部分の更新を確認';
