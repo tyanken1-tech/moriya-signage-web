@@ -1,4 +1,4 @@
-const CACHE_NAME = "moriya-signage-v2.1.0";
+const CACHE_NAME = "moriya-signage-v2.1.1";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -114,7 +114,11 @@ const APP_SHELL = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)).then(() => {
+    // One-time repair: broken navigation cannot run the normal update button.
+    // Future releases still wait for the normal safe update flow.
+    if (CACHE_NAME === 'moriya-signage-v2.1.1') return self.skipWaiting();
+  }));
 });
 
 self.addEventListener("activate", (event) => {
@@ -129,6 +133,18 @@ self.addEventListener("activate", (event) => {
 self.addEventListener('message', event => {
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
+
+async function navigationResponse(response) {
+  // Sites canonicalizes index.html to its directory. Safari rejects a followed
+  // redirect returned for a navigation; reconstruct the decoded HTML response,
+  // including previously cached responses, without its internal URL history.
+  if (!response?.redirected || !response.ok) return response;
+  const headers = new Headers(response.headers);
+  headers.delete('Content-Encoding');
+  headers.delete('Content-Length');
+  headers.delete('Location');
+  return new Response(await response.blob(), {status:response.status, statusText:response.statusText, headers});
+}
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
@@ -150,5 +166,5 @@ self.addEventListener("fetch", (event) => {
     if (request.mode === 'navigate' && (url.pathname === base.pathname || url.pathname === base.pathname+'index.html')) return cache.match(new URL('index.html',base).href);
     // No API responses, tokens, user uploads or arbitrary HTML fallbacks.
     return fetch(request);
-  })());
+  })().then(response => request.mode === 'navigate' ? navigationResponse(response) : response));
 });

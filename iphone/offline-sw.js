@@ -1,5 +1,5 @@
 "use strict";
-const VERSION = '2.1.0';
+const VERSION = '2.1.1';
 const PREFIX = 'moriya-navi-shell-';
 const SHELL = PREFIX + VERSION;
 const PHOTOS = 'moriya-navi-selected-photos';
@@ -13,7 +13,10 @@ const urls = [
 const photoPrefix = new URL('../assets/backgrounds/', base).href;
 let photoTask = Promise.resolve();
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(SHELL).then(cache => cache.addAll(urls)));
+  event.waitUntil(caches.open(SHELL).then(cache => cache.addAll(urls)).then(() => {
+    // Repair devices that cannot open the old cached page to approve updates.
+    if (VERSION === '2.1.1') return self.skipWaiting();
+  }));
 });
 self.addEventListener('activate', event => {
   event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith(PREFIX) && key !== SHELL).map(key => caches.delete(key)))).then(() => self.clients.claim()));
@@ -38,6 +41,14 @@ self.addEventListener('message', event => {
   photoTask = task;
   event.waitUntil(task.then(() => event.ports[0]?.postMessage({ready:true}), () => event.ports[0]?.postMessage({ready:false})));
 });
+async function navigationResponse(response) {
+  if (!response?.redirected || !response.ok) return response;
+  const headers = new Headers(response.headers);
+  headers.delete('Content-Encoding');
+  headers.delete('Content-Length');
+  headers.delete('Location');
+  return new Response(await response.blob(), {status:response.status, statusText:response.statusText, headers});
+}
 async function serve(request) {
   const url = new URL(request.url), shell = await caches.open(SHELL);
   if (request.mode === 'navigate') {
@@ -58,5 +69,5 @@ async function serve(request) {
 self.addEventListener('fetch', event => {
   const request = event.request, url = new URL(request.url);
   if (request.method !== 'GET' || url.origin !== base.origin || url.pathname.includes('/api/')) return;
-  event.respondWith(serve(request));
+  event.respondWith(serve(request).then(response => request.mode === 'navigate' ? navigationResponse(response) : response));
 });
