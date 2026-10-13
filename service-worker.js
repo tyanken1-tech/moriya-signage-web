@@ -1,4 +1,4 @@
-const CACHE_NAME = "moriya-signage-v2.1.1";
+const CACHE_NAME = "moriya-signage-v2.2.0";
 const APP_SHELL = [
   "./",
   "./index.html",

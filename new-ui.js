@@ -2187,6 +2187,16 @@
       }
     });
 
+    document.addEventListener("keydown", (event) => {
+      if (event.defaultPrevented || event.repeat || event.isComposing || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if ($("#viewportShell")?.dataset.mode !== "new" || isTransitioning || settingsAreOpen()) return;
+      if (event.target.closest?.('input, select, textarea, [contenteditable]:not([contenteditable="false"]), [role="dialog"], .eq-scroll, .new-smart-editor, .new-train-board.is-detail')) return;
+      if ([...document.querySelectorAll('[role="dialog"], dialog[open]')].some(node => !node.hidden && node.getClientRects().length)) return;
+      const target = event.key === 'ArrowLeft' ? pageForSwipe(1) : event.key === 'ArrowRight' ? pageForSwipe(-1)
+        : event.key === 'ArrowUp' ? verticalTarget(-1) : event.key === 'ArrowDown' ? verticalTarget(1) : null;
+      if (target && showPage(target)) { event.preventDefault(); resetInactivityTimer(); }
+    });
+
     nodes.signage.addEventListener("pointerdown", (event) => {
       if (isTransitioning) return;
       if (earthquakePage && event.target.closest(".eq-page button, .eq-scroll, .eq-controls")) return;

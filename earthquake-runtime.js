@@ -93,7 +93,7 @@
     let audio = null, soundUnavailable = false;
     const dismissed = new Set(), triggered = new Set(), connection = new Map();
     let raf = 0, mapTarget = null, mapView = null, lastMapKey = "", zoomManual = false, nationalMode = true;
-    let detailsOpen = false, detailsKey = "";
+    let detailsOpen = false, detailsKey = "", mapShift = 0;
     const region = () => catalog.areas.find((a) => a.code === config.area);
     const animationOff = () => document.documentElement.dataset.animationMode === "off" || matchMedia("(prefers-reduced-motion: reduce)").matches;
     const ns = "http://www.w3.org/2000/svg";
@@ -175,7 +175,7 @@
     $("eqObservationsClose").addEventListener("click", () => { detailsOpen = false; $("eqObservations").hidden = true; }, listeners);
     page.addEventListener("keydown", e => { if(e.key === "Escape") { detailsOpen=false; $("eqObservations").hidden=true; } }, listeners);
     const mapPointers=new Map();let gesture=null;
-    const mapPoint=e=>{const rect=$("eqMap").getBoundingClientRect();return{x:(e.clientX-rect.left)*WIDTH/rect.width,y:(e.clientY-rect.top)*HEIGHT/rect.height};};
+    const mapPoint=e=>{const rect=$("eqMap").getBoundingClientRect();return{x:(e.clientX-rect.left)*WIDTH/rect.width-mapShift,y:(e.clientY-rect.top)*HEIGHT/rect.height};};
     function zoom(factor,anchor={x:WIDTH/2,y:HEIGHT/2}) {
       zoomManual=true; nationalMode=false;
       mapTarget=C.zoomView(mapTarget,anchor,factor,national.k*.35,national.k*30);startMap();
@@ -388,9 +388,15 @@
       const dt = Math.min(.1, (frame - lastFrame) / 1000 || .03); lastFrame = frame;
       const blend = animationOff() ? 1 : 1 - Math.exp(-dt * 7);
       for (const k of ["k", "x", "y"]) mapView[k] += (mapTarget[k] - mapView[k]) * blend;
-      const transform = `translate(${mapView.x},${mapView.y}) scale(${mapView.k})`;
+      const panel = $("eqObservations");
+      const shiftTarget = !panel.hidden ? C.observationMapOffset($("eqMap").getBoundingClientRect(), panel.getBoundingClientRect(), WIDTH) : 0;
+      mapShift += (shiftTarget - mapShift) * blend;
+      // Keep the logical camera intact so closing the list restores its center
+      // without resetting user zoom/pan. Land, waves and markers move together.
+      const displayView = { ...mapView, x: mapView.x + mapShift };
+      const transform = `translate(${displayView.x},${displayView.y}) scale(${displayView.k})`;
       geography.setAttribute("transform", transform); waves.setAttribute("transform", transform);
-      insets.forEach(i=>{i.frame.style.display=nationalMode?"":"none";i.mark.replaceChildren();});
+      insets.forEach(i=>{i.frame.style.display=nationalMode?"":"none";i.frame.setAttribute("transform",`translate(${mapShift},0)`);i.mark.replaceChildren();});
       paths.forEach(p=>{if(p.inset>=0)p.node.style.display=nationalMode?"none":"";});
       const event = current(), stamp = Date.now();
       const active = event && !event.historical && !event.cancelled && stamp < event.origin + 180000 && C.hasLocation(event);
@@ -409,7 +415,7 @@
       markers.replaceChildren();
       function marker(p, kind, text, lon, lat) {
         const index=nationalMode?insetIndex(lon,lat):-1;
-        const view=index>=0?insets[index].view:mapView;
+        const view=index>=0?insets[index].view:displayView;
         const x = p[0] * view.k + view.x, y = p[1] * view.k + view.y;
         const group = svg("g", { transform: `translate(${x},${y})`, class: `eq-marker eq-marker-${kind}` });
         group.append(kind === "source" ? svg("path", { d: "M-7-7 7 7M7-7-7 7" }) : svg("circle", { r: 5 }));

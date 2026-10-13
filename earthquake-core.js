@@ -146,6 +146,11 @@
     const distance = 6371*2*Math.asin(Math.sqrt(Math.min(1,a)));
     return (event.origin-stamp)/1000 + Math.hypot(distance,event.depth)/3.5;
   }
+  function observationMapOffset(mapRect, panelRect, width = 828, gap = 18) {
+    if (!(mapRect?.width > 0) || !(panelRect?.width > 0)) return 0;
+    const covered = (panelRect.right - mapRect.left) * width / mapRect.width;
+    return Math.max(0, Math.min(width - 120, covered + gap)) / 2;
+  }
   function zoomView(view, anchor, factor, minimum, maximum) {
     const k = Math.max(minimum, Math.min(maximum, view.k*factor));
     const ratio = k/view.k;
@@ -193,5 +198,5 @@
       final: prior.final || next.final, cancelled: prior.cancelled || next.cancelled };
   }
   return { SCALES, DEFAULTS, numeric, scale, label, time, options, normalizeWolfx, normalizeP2P, history, histories,
-    matchingAreas, localScale, localObservation, trigger, fresh, endTime, hasLocation, surfaceRadius, sArrival, zoomView, observations, observationGroups, weatherMunicipalityMatch, destination, merge };
+    matchingAreas, localScale, localObservation, trigger, fresh, endTime, hasLocation, surfaceRadius, sArrival, observationMapOffset, zoomView, observations, observationGroups, weatherMunicipalityMatch, destination, merge };
 });
