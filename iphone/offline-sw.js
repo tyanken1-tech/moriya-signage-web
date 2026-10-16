@@ -1,5 +1,5 @@
 "use strict";
-const VERSION = '2.2.0';
+const VERSION = '2.2.2';
 const PREFIX = 'moriya-navi-shell-';
 const SHELL = PREFIX + VERSION;
 const PHOTOS = 'moriya-navi-selected-photos';

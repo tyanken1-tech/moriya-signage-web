@@ -1,7 +1,8 @@
-const CACHE_NAME = "moriya-signage-v2.2.0";
+const CACHE_NAME = "moriya-signage-v2.2.2";
 const APP_SHELL = [
   "./",
   "./index.html",
+  "./qr-transfer-core.js", "./qr-transfer-main.js", "./qr-transfer.js",
   "./iphone/index.html",
   "./iphone/iphone.css",
   "./iphone/iphone.js",
@@ -23,6 +24,7 @@ const APP_SHELL = [
   "./earthquake-beta.js",
   "./earthquake-core.js",
   "./earthquake-runtime.js",
+  "./assets/audio/eew-first.mp3",
   "./earthquake-beta.css",
   "./data/earthquake-regions.json",
   "./data/earthquake-regions.geojson",

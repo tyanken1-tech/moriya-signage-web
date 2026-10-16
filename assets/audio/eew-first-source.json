@@ -1,0 +1,7 @@
+{
+  "source": "https://www.town.nanbu.yamanashi.jp/kakuka/koutsuubousai/files/904_J.mp3",
+  "description": "ユーザー指定音源の最初の1回を使用。冒頭の無音を短縮し、繰り返し前で切り出し。",
+  "sourceStartSeconds": 0.65,
+  "durationSeconds": 3,
+  "fadeOutSeconds": 0.08
+}

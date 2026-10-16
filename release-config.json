@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "version": "2.2.0",
-  "displayVersion": "2.2",
+  "version": "2.2.2",
+  "displayVersion": "2.2.2",
   "versionCode": 11,
   "runtimeMajor": 2,
   "webUpdateManifestUrl": "https://raw.githubusercontent.com/tyanken1-tech/moriya-signage-updates/main/web-latest.json",

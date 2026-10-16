@@ -1,0 +1,3223 @@
+window.TX_MORIYA_AKIHABARA_TIMETABLE = {
+  "station": "守谷",
+  "line": "つくばエクスプレス",
+  "direction": "秋葉原方面",
+  "source": "PDF extracted from official timetable pages",
+  "services": {
+    "rapid": "快速",
+    "semiRapid": "区間快速",
+    "local": "普通"
+  },
+  "weekday": [
+    {
+      "time": "05:04",
+      "hour": 5,
+      "minute": 4,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "05:09",
+      "hour": 5,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "05:20",
+      "hour": 5,
+      "minute": 20,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "05:24",
+      "hour": 5,
+      "minute": 24,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "05:31",
+      "hour": 5,
+      "minute": 31,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "05:40",
+      "hour": 5,
+      "minute": 40,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "05:41",
+      "hour": 5,
+      "minute": 41,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "05:50",
+      "hour": 5,
+      "minute": 50,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "05:52",
+      "hour": 5,
+      "minute": 52,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "05:57",
+      "hour": 5,
+      "minute": 57,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:04",
+      "hour": 6,
+      "minute": 4,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "06:06",
+      "hour": 6,
+      "minute": 6,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:13",
+      "hour": 6,
+      "minute": 13,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:20",
+      "hour": 6,
+      "minute": 20,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "06:22",
+      "hour": 6,
+      "minute": 22,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:27",
+      "hour": 6,
+      "minute": 27,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:31",
+      "hour": 6,
+      "minute": 31,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "06:34",
+      "hour": 6,
+      "minute": 34,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:38",
+      "hour": 6,
+      "minute": 38,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:43",
+      "hour": 6,
+      "minute": 43,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "06:44",
+      "hour": 6,
+      "minute": 44,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:47",
+      "hour": 6,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:51",
+      "hour": 6,
+      "minute": 51,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "06:55",
+      "hour": 6,
+      "minute": 55,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:59",
+      "hour": 6,
+      "minute": 59,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:02",
+      "hour": 7,
+      "minute": 2,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:04",
+      "hour": 7,
+      "minute": 4,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:08",
+      "hour": 7,
+      "minute": 8,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:10",
+      "hour": 7,
+      "minute": 10,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:13",
+      "hour": 7,
+      "minute": 13,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:15",
+      "hour": 7,
+      "minute": 15,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:18",
+      "hour": 7,
+      "minute": 18,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:21",
+      "hour": 7,
+      "minute": 21,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:23",
+      "hour": 7,
+      "minute": 23,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:26",
+      "hour": 7,
+      "minute": 26,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:29",
+      "hour": 7,
+      "minute": 29,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:32",
+      "hour": 7,
+      "minute": 32,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:34",
+      "hour": 7,
+      "minute": 34,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:37",
+      "hour": 7,
+      "minute": 37,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:40",
+      "hour": 7,
+      "minute": 40,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:43",
+      "hour": 7,
+      "minute": 43,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:46",
+      "hour": 7,
+      "minute": 46,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:48",
+      "hour": 7,
+      "minute": 48,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:51",
+      "hour": 7,
+      "minute": 51,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:54",
+      "hour": 7,
+      "minute": 54,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:57",
+      "hour": 7,
+      "minute": 57,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:59",
+      "hour": 7,
+      "minute": 59,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "08:03",
+      "hour": 8,
+      "minute": 3,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "08:06",
+      "hour": 8,
+      "minute": 6,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "08:09",
+      "hour": 8,
+      "minute": 9,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "08:14",
+      "hour": 8,
+      "minute": 14,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "08:18",
+      "hour": 8,
+      "minute": 18,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "08:22",
+      "hour": 8,
+      "minute": 22,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "08:27",
+      "hour": 8,
+      "minute": 27,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "08:30",
+      "hour": 8,
+      "minute": 30,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "08:35",
+      "hour": 8,
+      "minute": 35,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "08:40",
+      "hour": 8,
+      "minute": 40,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "08:45",
+      "hour": 8,
+      "minute": 45,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "08:49",
+      "hour": 8,
+      "minute": 49,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "08:56",
+      "hour": 8,
+      "minute": 56,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "09:05",
+      "hour": 9,
+      "minute": 5,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "09:06",
+      "hour": 9,
+      "minute": 6,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "09:15",
+      "hour": 9,
+      "minute": 15,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "09:21",
+      "hour": 9,
+      "minute": 21,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "09:29",
+      "hour": 9,
+      "minute": 29,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "09:30",
+      "hour": 9,
+      "minute": 30,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "09:37",
+      "hour": 9,
+      "minute": 37,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "09:41",
+      "hour": 9,
+      "minute": 41,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "09:47",
+      "hour": 9,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "09:52",
+      "hour": 9,
+      "minute": 52,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "09:59",
+      "hour": 9,
+      "minute": 59,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "10:08",
+      "hour": 10,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "10:09",
+      "hour": 10,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "10:17",
+      "hour": 10,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "10:25",
+      "hour": 10,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "10:28",
+      "hour": 10,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "10:38",
+      "hour": 10,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "10:39",
+      "hour": 10,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "10:47",
+      "hour": 10,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "10:55",
+      "hour": 10,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "10:58",
+      "hour": 10,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "11:08",
+      "hour": 11,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "11:09",
+      "hour": 11,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "11:17",
+      "hour": 11,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "11:25",
+      "hour": 11,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "11:28",
+      "hour": 11,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "11:38",
+      "hour": 11,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "11:39",
+      "hour": 11,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "11:47",
+      "hour": 11,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "11:55",
+      "hour": 11,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "11:58",
+      "hour": 11,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "12:08",
+      "hour": 12,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "12:09",
+      "hour": 12,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "12:17",
+      "hour": 12,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "12:25",
+      "hour": 12,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "12:28",
+      "hour": 12,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "12:38",
+      "hour": 12,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "12:39",
+      "hour": 12,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "12:47",
+      "hour": 12,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "12:55",
+      "hour": 12,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "12:58",
+      "hour": 12,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "13:08",
+      "hour": 13,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "13:09",
+      "hour": 13,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "13:17",
+      "hour": 13,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "13:25",
+      "hour": 13,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "13:28",
+      "hour": 13,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "13:38",
+      "hour": 13,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "13:39",
+      "hour": 13,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "13:47",
+      "hour": 13,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "13:55",
+      "hour": 13,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "13:58",
+      "hour": 13,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "14:08",
+      "hour": 14,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "14:09",
+      "hour": 14,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "14:17",
+      "hour": 14,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "14:25",
+      "hour": 14,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "14:28",
+      "hour": 14,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "14:38",
+      "hour": 14,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "14:39",
+      "hour": 14,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "14:47",
+      "hour": 14,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "14:55",
+      "hour": 14,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "14:58",
+      "hour": 14,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "15:08",
+      "hour": 15,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "15:09",
+      "hour": 15,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "15:17",
+      "hour": 15,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "15:25",
+      "hour": 15,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "15:28",
+      "hour": 15,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "15:38",
+      "hour": 15,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "15:39",
+      "hour": 15,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "15:47",
+      "hour": 15,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "15:55",
+      "hour": 15,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "15:58",
+      "hour": 15,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "16:08",
+      "hour": 16,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "16:09",
+      "hour": 16,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "16:17",
+      "hour": 16,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "16:25",
+      "hour": 16,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "16:26",
+      "hour": 16,
+      "minute": 26,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "16:34",
+      "hour": 16,
+      "minute": 34,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "16:38",
+      "hour": 16,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "16:42",
+      "hour": 16,
+      "minute": 42,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "16:49",
+      "hour": 16,
+      "minute": 49,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "16:51",
+      "hour": 16,
+      "minute": 51,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "17:00",
+      "hour": 17,
+      "minute": 0,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:01",
+      "hour": 17,
+      "minute": 1,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "17:10",
+      "hour": 17,
+      "minute": 10,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:11",
+      "hour": 17,
+      "minute": 11,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "17:18",
+      "hour": 17,
+      "minute": 18,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:19",
+      "hour": 17,
+      "minute": 19,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "17:23",
+      "hour": 17,
+      "minute": 23,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "17:30",
+      "hour": 17,
+      "minute": 30,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:31",
+      "hour": 17,
+      "minute": 31,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:34",
+      "hour": 17,
+      "minute": 34,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "17:39",
+      "hour": 17,
+      "minute": 39,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:44",
+      "hour": 17,
+      "minute": 44,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "17:50",
+      "hour": 17,
+      "minute": 50,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:52",
+      "hour": 17,
+      "minute": 52,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "17:55",
+      "hour": 17,
+      "minute": 55,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "18:01",
+      "hour": 18,
+      "minute": 1,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "18:03",
+      "hour": 18,
+      "minute": 3,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "18:06",
+      "hour": 18,
+      "minute": 6,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "18:12",
+      "hour": 18,
+      "minute": 12,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "18:13",
+      "hour": 18,
+      "minute": 13,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "18:18",
+      "hour": 18,
+      "minute": 18,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "18:24",
+      "hour": 18,
+      "minute": 24,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "18:29",
+      "hour": 18,
+      "minute": 29,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "18:31",
+      "hour": 18,
+      "minute": 31,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "18:36",
+      "hour": 18,
+      "minute": 36,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "18:43",
+      "hour": 18,
+      "minute": 43,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "18:44",
+      "hour": 18,
+      "minute": 44,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "18:51",
+      "hour": 18,
+      "minute": 51,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "18:54",
+      "hour": 18,
+      "minute": 54,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "18:59",
+      "hour": 18,
+      "minute": 59,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:01",
+      "hour": 19,
+      "minute": 1,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "19:06",
+      "hour": 19,
+      "minute": 6,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "19:13",
+      "hour": 19,
+      "minute": 13,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:14",
+      "hour": 19,
+      "minute": 14,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:20",
+      "hour": 19,
+      "minute": 20,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:24",
+      "hour": 19,
+      "minute": 24,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "19:29",
+      "hour": 19,
+      "minute": 29,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:35",
+      "hour": 19,
+      "minute": 35,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "19:43",
+      "hour": 19,
+      "minute": 43,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:44",
+      "hour": 19,
+      "minute": 44,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:50",
+      "hour": 19,
+      "minute": 50,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:54",
+      "hour": 19,
+      "minute": 54,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "20:00",
+      "hour": 20,
+      "minute": 0,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:08",
+      "hour": 20,
+      "minute": 8,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:15",
+      "hour": 20,
+      "minute": 15,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:16",
+      "hour": 20,
+      "minute": 16,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "20:21",
+      "hour": 20,
+      "minute": 21,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:25",
+      "hour": 20,
+      "minute": 25,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "20:30",
+      "hour": 20,
+      "minute": 30,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:39",
+      "hour": 20,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:45",
+      "hour": 20,
+      "minute": 45,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:47",
+      "hour": 20,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "20:53",
+      "hour": 20,
+      "minute": 53,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:58",
+      "hour": 20,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "21:06",
+      "hour": 21,
+      "minute": 6,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "21:10",
+      "hour": 21,
+      "minute": 10,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "21:21",
+      "hour": 21,
+      "minute": 21,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "21:23",
+      "hour": 21,
+      "minute": 23,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "21:31",
+      "hour": 21,
+      "minute": 31,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "21:34",
+      "hour": 21,
+      "minute": 34,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "21:44",
+      "hour": 21,
+      "minute": 44,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "21:48",
+      "hour": 21,
+      "minute": 48,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "21:58",
+      "hour": 21,
+      "minute": 58,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "22:00",
+      "hour": 22,
+      "minute": 0,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "22:10",
+      "hour": 22,
+      "minute": 10,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "22:12",
+      "hour": 22,
+      "minute": 12,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "22:23",
+      "hour": 22,
+      "minute": 23,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "22:25",
+      "hour": 22,
+      "minute": 25,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "22:34",
+      "hour": 22,
+      "minute": 34,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "22:47",
+      "hour": 22,
+      "minute": 47,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "22:48",
+      "hour": 22,
+      "minute": 48,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "22:59",
+      "hour": 22,
+      "minute": 59,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "23:05",
+      "hour": 23,
+      "minute": 5,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "23:18",
+      "hour": 23,
+      "minute": 18,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "23:32",
+      "hour": 23,
+      "minute": 32,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "23:40",
+      "hour": 23,
+      "minute": 40,
+      "kind": "local",
+      "destination": "八潮",
+      "startsHere": false
+    }
+  ],
+  "weekend": [
+    {
+      "time": "05:04",
+      "hour": 5,
+      "minute": 4,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "05:09",
+      "hour": 5,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "05:20",
+      "hour": 5,
+      "minute": 20,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "05:24",
+      "hour": 5,
+      "minute": 24,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "05:31",
+      "hour": 5,
+      "minute": 31,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "05:40",
+      "hour": 5,
+      "minute": 40,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "05:41",
+      "hour": 5,
+      "minute": 41,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "05:50",
+      "hour": 5,
+      "minute": 50,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "05:52",
+      "hour": 5,
+      "minute": 52,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:01",
+      "hour": 6,
+      "minute": 1,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:04",
+      "hour": 6,
+      "minute": 4,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "06:12",
+      "hour": 6,
+      "minute": 12,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:16",
+      "hour": 6,
+      "minute": 16,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:20",
+      "hour": 6,
+      "minute": 20,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "06:28",
+      "hour": 6,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "06:34",
+      "hour": 6,
+      "minute": 34,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:41",
+      "hour": 6,
+      "minute": 41,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "06:42",
+      "hour": 6,
+      "minute": 42,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "06:49",
+      "hour": 6,
+      "minute": 49,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "06:54",
+      "hour": 6,
+      "minute": 54,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "06:57",
+      "hour": 6,
+      "minute": 57,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:04",
+      "hour": 7,
+      "minute": 4,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:11",
+      "hour": 7,
+      "minute": 11,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:12",
+      "hour": 7,
+      "minute": 12,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:19",
+      "hour": 7,
+      "minute": 19,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:24",
+      "hour": 7,
+      "minute": 24,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:27",
+      "hour": 7,
+      "minute": 27,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:34",
+      "hour": 7,
+      "minute": 34,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:41",
+      "hour": 7,
+      "minute": 41,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:42",
+      "hour": 7,
+      "minute": 42,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:49",
+      "hour": 7,
+      "minute": 49,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "07:54",
+      "hour": 7,
+      "minute": 54,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "07:57",
+      "hour": 7,
+      "minute": 57,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "08:04",
+      "hour": 8,
+      "minute": 4,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "08:11",
+      "hour": 8,
+      "minute": 11,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "08:12",
+      "hour": 8,
+      "minute": 12,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "08:19",
+      "hour": 8,
+      "minute": 19,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "08:24",
+      "hour": 8,
+      "minute": 24,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "08:27",
+      "hour": 8,
+      "minute": 27,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "08:34",
+      "hour": 8,
+      "minute": 34,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "08:41",
+      "hour": 8,
+      "minute": 41,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "08:42",
+      "hour": 8,
+      "minute": 42,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "08:49",
+      "hour": 8,
+      "minute": 49,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "08:54",
+      "hour": 8,
+      "minute": 54,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "08:57",
+      "hour": 8,
+      "minute": 57,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "09:08",
+      "hour": 9,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "09:09",
+      "hour": 9,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "09:17",
+      "hour": 9,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "09:25",
+      "hour": 9,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "09:28",
+      "hour": 9,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "09:38",
+      "hour": 9,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "09:39",
+      "hour": 9,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "09:47",
+      "hour": 9,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "09:55",
+      "hour": 9,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "09:58",
+      "hour": 9,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "10:08",
+      "hour": 10,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "10:09",
+      "hour": 10,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "10:17",
+      "hour": 10,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "10:25",
+      "hour": 10,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "10:28",
+      "hour": 10,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "10:38",
+      "hour": 10,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "10:39",
+      "hour": 10,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "10:47",
+      "hour": 10,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "10:55",
+      "hour": 10,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "10:58",
+      "hour": 10,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "11:08",
+      "hour": 11,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "11:09",
+      "hour": 11,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "11:17",
+      "hour": 11,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "11:25",
+      "hour": 11,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "11:28",
+      "hour": 11,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "11:38",
+      "hour": 11,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "11:39",
+      "hour": 11,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "11:47",
+      "hour": 11,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "11:55",
+      "hour": 11,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "11:58",
+      "hour": 11,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "12:08",
+      "hour": 12,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "12:09",
+      "hour": 12,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "12:17",
+      "hour": 12,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "12:25",
+      "hour": 12,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "12:28",
+      "hour": 12,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "12:38",
+      "hour": 12,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "12:39",
+      "hour": 12,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "12:47",
+      "hour": 12,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "12:55",
+      "hour": 12,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "12:58",
+      "hour": 12,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "13:08",
+      "hour": 13,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "13:09",
+      "hour": 13,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "13:17",
+      "hour": 13,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "13:25",
+      "hour": 13,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "13:28",
+      "hour": 13,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "13:38",
+      "hour": 13,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "13:39",
+      "hour": 13,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "13:47",
+      "hour": 13,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "13:55",
+      "hour": 13,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "13:58",
+      "hour": 13,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "14:08",
+      "hour": 14,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "14:09",
+      "hour": 14,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "14:17",
+      "hour": 14,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "14:25",
+      "hour": 14,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "14:28",
+      "hour": 14,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "14:38",
+      "hour": 14,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "14:39",
+      "hour": 14,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "14:47",
+      "hour": 14,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "14:55",
+      "hour": 14,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "14:58",
+      "hour": 14,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "15:08",
+      "hour": 15,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "15:09",
+      "hour": 15,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "15:17",
+      "hour": 15,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "15:25",
+      "hour": 15,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "15:28",
+      "hour": 15,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "15:38",
+      "hour": 15,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "15:39",
+      "hour": 15,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "15:47",
+      "hour": 15,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "15:55",
+      "hour": 15,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "15:58",
+      "hour": 15,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "16:08",
+      "hour": 16,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "16:09",
+      "hour": 16,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "16:17",
+      "hour": 16,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "16:25",
+      "hour": 16,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "16:28",
+      "hour": 16,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "16:38",
+      "hour": 16,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "16:39",
+      "hour": 16,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "16:47",
+      "hour": 16,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "16:55",
+      "hour": 16,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "16:58",
+      "hour": 16,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:08",
+      "hour": 17,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:09",
+      "hour": 17,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:17",
+      "hour": 17,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:25",
+      "hour": 17,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:28",
+      "hour": 17,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:38",
+      "hour": 17,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:39",
+      "hour": 17,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:47",
+      "hour": 17,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:55",
+      "hour": 17,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "17:58",
+      "hour": 17,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "18:08",
+      "hour": 18,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "18:09",
+      "hour": 18,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "18:17",
+      "hour": 18,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "18:25",
+      "hour": 18,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "18:28",
+      "hour": 18,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "18:38",
+      "hour": 18,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "18:39",
+      "hour": 18,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "18:47",
+      "hour": 18,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "18:55",
+      "hour": 18,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "18:58",
+      "hour": 18,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:08",
+      "hour": 19,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:09",
+      "hour": 19,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "19:17",
+      "hour": 19,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "19:25",
+      "hour": 19,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:28",
+      "hour": 19,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:38",
+      "hour": 19,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:39",
+      "hour": 19,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "19:47",
+      "hour": 19,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "19:55",
+      "hour": 19,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "19:58",
+      "hour": 19,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:08",
+      "hour": 20,
+      "minute": 8,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:09",
+      "hour": 20,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "20:17",
+      "hour": 20,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "20:25",
+      "hour": 20,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:28",
+      "hour": 20,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:38",
+      "hour": 20,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:39",
+      "hour": 20,
+      "minute": 39,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "20:47",
+      "hour": 20,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "20:55",
+      "hour": 20,
+      "minute": 55,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "20:58",
+      "hour": 20,
+      "minute": 58,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "21:09",
+      "hour": 21,
+      "minute": 9,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "21:17",
+      "hour": 21,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "21:25",
+      "hour": 21,
+      "minute": 25,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "21:28",
+      "hour": 21,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "21:38",
+      "hour": 21,
+      "minute": 38,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "21:41",
+      "hour": 21,
+      "minute": 41,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "21:53",
+      "hour": 21,
+      "minute": 53,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "22:05",
+      "hour": 22,
+      "minute": 5,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "22:08",
+      "hour": 22,
+      "minute": 8,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "22:17",
+      "hour": 22,
+      "minute": 17,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "22:22",
+      "hour": 22,
+      "minute": 22,
+      "kind": "rapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "22:28",
+      "hour": 22,
+      "minute": 28,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "22:32",
+      "hour": 22,
+      "minute": 32,
+      "kind": "semiRapid",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "22:47",
+      "hour": 22,
+      "minute": 47,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "22:59",
+      "hour": 22,
+      "minute": 59,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "23:08",
+      "hour": 23,
+      "minute": 8,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": true
+    },
+    {
+      "time": "23:18",
+      "hour": 23,
+      "minute": 18,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "23:32",
+      "hour": 23,
+      "minute": 32,
+      "kind": "local",
+      "destination": "秋葉原",
+      "startsHere": false
+    },
+    {
+      "time": "23:40",
+      "hour": 23,
+      "minute": 40,
+      "kind": "local",
+      "destination": "八潮",
+      "startsHere": false
+    }
+  ]
+};

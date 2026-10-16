@@ -57,7 +57,7 @@
       thresholdEnabled: typeof v.thresholdEnabled === "boolean" ? v.thresholdEnabled : true,
       threshold: SCALES.slice(2).includes(Number(v.threshold)) ? Number(v.threshold) : 40,
       warningEnabled: typeof v.warningEnabled === "boolean" ? v.warningEnabled : true,
-      nationwide: v.nationwide === true, sound: ["off", "soft", "chime"].includes(v.sound) ? v.sound : "off",
+      nationwide: v.nationwide === true, sound: ["off", "soft", "chime", "eewFirst"].includes(v.sound) ? v.sound : "off",
       historyMin: SCALES.slice(1).includes(Number(v.historyMin)) ? Number(v.historyMin) : 20 };
   }
   function normalizeWolfx(v) {

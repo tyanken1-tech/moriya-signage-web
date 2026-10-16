@@ -75,7 +75,7 @@
       <label class="checkbox-row"><input type="checkbox" id="eqThresholdEnabled"><span>地域の予想震度で自動表示</span></label><label><span>自動表示する予想震度</span><select id="eqThreshold">${scaleOptions()}</select></label>
       <label class="checkbox-row"><input type="checkbox" id="eqWarningEnabled"><span>設定地域が緊急地震速報の警報対象なら自動表示</span></label>
       <label class="checkbox-row"><input type="checkbox" id="eqNationwide"><span>全国どこかに緊急地震速報の警報が出たら自動表示</span></label>
-      <label><span>お知らせ音</span><select id="eqSound"><option value="off">鳴らさない</option><option value="soft">穏やかな通知音</option><option value="chime">速報用チャイム（控えめ）</option></select></label><button type="button" id="eqSoundTest">音を試す</button></div>
+      <label><span>お知らせ音</span><select id="eqSound"><option value="off">鳴らさない</option><option value="soft">穏やかな通知音</option><option value="chime">速報用チャイム（控えめ）</option><option value="eewFirst">指定の地震速報音（1回・約3秒）</option></select></label><button type="button" id="eqSoundTest">音を試す</button></div>
       <p class="dialog-note">いずれかの条件を満たすとアプリ内の地震画面へ移動します。予想震度は配信に含まれる場合のみ判定します。終了後60秒で元の画面に戻ります。手動でホームへ戻った地震の続報では再び自動表示しません。設定・履歴はこの端末に保存します。</p>
       <p class="dialog-note">無料・認証不要の非公式配信を利用します。公式の緊急地震速報の代わりにはなりません。地域の目印は予報区の代表位置です。P波6km/s・S波3.5km/sの概算で描画します。音は端末・ブラウザの制限により操作後に有効になります。</p>
       <details id="eqDebug"><summary>デバッグ・テスト地震</summary><div class="settings-grid">
@@ -91,6 +91,7 @@
     let scheduled = null, test = null, latestLive = null, auto = null, pendingAuto = null, pendingReturn = null;
     let sockets = [], reconnectTimers = [], historyTimer = 0, networkGeneration = 0, request = null;
     let audio = null, soundUnavailable = false;
+    let alertBuffer = null, alertLoading = null, alertSource = null, alertSequence = 0;
     const dismissed = new Set(), triggered = new Set(), connection = new Map();
     let raf = 0, mapTarget = null, mapView = null, lastMapKey = "", zoomManual = false, nationalMode = true;
     let detailsOpen = false, detailsKey = "", mapShift = 0;
@@ -226,11 +227,50 @@
       if (Audio) { audio = new Audio(); void audio.resume().catch(() => {}); }
     }
     document.addEventListener("pointerdown", unlockSound, { ...listeners, capture: true });
+    function stopAlertSound() {
+      alertSequence++;
+      if (alertSource) { try { alertSource.stop(); } catch {} alertSource.disconnect(); alertSource = null; }
+    }
+    function loadAlertSound() {
+      if (alertBuffer) return Promise.resolve(alertBuffer);
+      if (alertLoading) return alertLoading;
+      const context = audio;
+      if (!context) return Promise.reject(new Error('Audio unavailable'));
+      alertLoading = (async () => {
+        const response = await fetch('./assets/audio/eew-first.mp3', {signal:life.signal});
+        if (!response.ok) throw new Error('Alert sound unavailable');
+        const buffer = await context.decodeAudioData(await response.arrayBuffer());
+        if (destroyed || audio !== context) throw new Error('Audio closed');
+        alertBuffer = buffer;
+        return buffer;
+      })().finally(() => { alertLoading = null; });
+      return alertLoading;
+    }
+    field('eqSound').addEventListener('change', () => {
+      stopAlertSound();
+      if (config.sound === 'eewFirst') { unlockSound(); void loadAlertSound().catch(() => {}); }
+    }, listeners);
     async function playSound(force = false) {
       if (!foreground || config.sound === "off") return;
       if (force) { unlockSound(); try { await audio?.resume(); } catch { /* Browser may deny audio. */ } }
       if (!audio || audio.state !== "running") { soundUnavailable = true; render(); return; }
       soundUnavailable = false;
+      stopAlertSound();
+      if (config.sound === 'eewFirst') {
+        const sequence = alertSequence;
+        try {
+          const buffer = await loadAlertSound();
+          if (destroyed || !foreground || config.sound !== 'eewFirst' || sequence !== alertSequence || audio.state !== 'running') return;
+          const source = audio.createBufferSource(), gain = audio.createGain();
+          source.buffer = buffer; source.loop = false;
+          gain.gain.value = .7;
+          source.connect(gain); gain.connect(audio.destination);
+          alertSource = source;
+          source.onended = () => { source.disconnect(); gain.disconnect(); if (alertSource === source) alertSource = null; };
+          source.start();
+        } catch { if (!destroyed && sequence === alertSequence) { soundUnavailable = true; render(); } }
+        return;
+      }
       const t = audio.currentTime;
       const tones = config.sound === "chime" ? [660, 880, 660, 880] : [523, 659];
       tones.forEach((f, i) => {
@@ -497,7 +537,7 @@
     function visibility(active) {
       foreground = active && !document.hidden;
       if (foreground) { startNetwork(); evaluate(); render(); startMap(); }
-      else { stopNetwork(); cancelAnimationFrame(raf); raf = 0; void audio?.suspend().catch(() => {}); }
+      else { stopNetwork(); cancelAnimationFrame(raf); raf = 0; stopAlertSound(); void audio?.suspend().catch(() => {}); }
     }
     document.addEventListener("visibilitychange", () => visibility(!document.hidden), listeners);
     window.addEventListener("blur", () => visibility(false), listeners);
@@ -543,7 +583,7 @@
     render(); startNetwork();
     return { destroy() {
       if (destroyed) return;
-      destroyed = true; life.abort(); clearInterval(tick); stopNetwork(); cancelAnimationFrame(raf); void audio?.close().catch(() => {});
+      destroyed = true; life.abort(); clearInterval(tick); stopNetwork(); cancelAnimationFrame(raf); stopAlertSound(); alertBuffer = null; void audio?.close().catch(() => {});
       test = scheduled = null; ui.unregisterEarthquakePage(); page.remove(); earthquakeDebug.remove(); controls.replaceChildren(); controls.classList.remove("eq-controls");
     } };
   }

@@ -437,8 +437,14 @@ async function directCloudRequest(provider, operation, credentials, action = nul
   return detail || {};
 }
 
-async function loadSwitchBot(force = false) {
-  const credentials = normalizeSwitchBotSettings({ token: el.switchBotToken?.value || settings.switchBot?.token, secret: el.switchBotSecret?.value || settings.switchBot?.secret });
+let switchBotPending = null;
+function loadSwitchBot(force = false) {
+  if(switchBotPending) return switchBotPending;
+  switchBotPending=loadSwitchBotRequest(force).finally(()=>{switchBotPending=null;});
+  return switchBotPending;
+}
+async function loadSwitchBotRequest(force = false) {
+  const credentials = normalizeSwitchBotSettings({ token: el.switchBotToken?.value || settings.switchBot?.token, secret: el.switchBotSecret?.value || settings.switchBot?.secret, temperatureDeviceId: document.getElementById('switchBotTemperatureDevice')?.value ?? settings.switchBot?.temperatureDeviceId });
   settings.switchBot = credentials;
   if (!credentials.token || !credentials.secret) {
     if (el.switchBotStatus) el.switchBotStatus.textContent = "TokenとSecret Keyを入力してください";
@@ -447,7 +453,8 @@ async function loadSwitchBot(force = false) {
   if (el.switchBotStatus) el.switchBotStatus.textContent = "SwitchBotから機器を読み込み中…";
   try {
     const result = await directCloudRequest("switchbot", "discover", credentials);
-    latestSwitchBotDiscovery = { configured: true, devices: result.devices || [], fetchedAt: Date.now() };
+    latestSwitchBotDiscovery = { configured: true, devices: result.devices || [], fetchedAt: Date.now(), credentialKey: natureTokenKey(credentials.token)+':'+natureTokenKey(credentials.secret) };
+    populateSwitchBotTemperature();
     localStorage.setItem("moriyaSwitchBotCache", JSON.stringify(latestSwitchBotDiscovery));
     if (el.switchBotStatus) el.switchBotStatus.textContent = `直接接続済み：${latestSwitchBotDiscovery.devices.length}台`;
     populateNatureRemoSelectors(latestNatureRemoDiscovery);
@@ -564,7 +571,7 @@ function normalizeNatureAction(action) {
 }
 
 function normalizeSwitchBotSettings(value) {
-  return { token: normalizeNatureToken(value?.token), secret: normalizeNatureToken(value?.secret) };
+  return { token: normalizeNatureToken(value?.token), secret: normalizeNatureToken(value?.secret), temperatureDeviceId: String(value?.temperatureDeviceId || '').slice(0,128) };
 }
 
 function normalizeSmartLifeSettings(value) {
@@ -1183,6 +1190,7 @@ window.MoriyaSettingsBridge = {
     void fetchMarketQuotes(true);
   },
   backup: (scope) => createSettingsBackupText(scope, false, false),
+  qrBackup: () => createSettingsBackupText('all', false, true),
   restore: restoreSettingsBackupText,
 };
 
@@ -1453,6 +1461,7 @@ function applySettingsToUi() {
   if (el.natureRemoToken) el.natureRemoToken.value = settings.natureRemo.token;
   if (el.switchBotToken) el.switchBotToken.value = settings.switchBot?.token || "";
   if (el.switchBotSecret) el.switchBotSecret.value = settings.switchBot?.secret || "";
+  populateSwitchBotTemperature();
   if (el.tuyaEndpoint) el.tuyaEndpoint.value = settings.smartLife?.endpoint || DEFAULT_SETTINGS.smartLife.endpoint;
   if (el.tuyaAccessId) el.tuyaAccessId.value = settings.smartLife?.accessId || "";
   if (el.tuyaAccessSecret) el.tuyaAccessSecret.value = settings.smartLife?.accessSecret || "";
@@ -2487,6 +2496,15 @@ function readNatureRemoCache(token) {
   }
 }
 
+function populateSwitchBotTemperature() {
+  const select=document.getElementById('switchBotTemperatureDevice');if(!select)return;
+  const chosen=settings.switchBot?.temperatureDeviceId||'';
+  select.replaceChildren(new Option('自動（先頭の温度センサー）',''));
+  const devices=(latestSwitchBotDiscovery?.devices||[]).filter(d=>typeof d.state?.temperature==='number'&&Number.isFinite(d.state.temperature));
+  for(const d of devices) select.add(new Option(d.name,d.externalId));
+  if(chosen&&!devices.some(d=>d.externalId===chosen))select.add(new Option('保存済みのセンサー（現在未取得）',chosen));
+  select.value=chosen;
+}
 function makeNatureRemoPayload(discovery, stale = false, error = "") {
   const devices = Array.isArray(discovery?.devices) ? discovery.devices : [];
   const preferredId = settings.natureRemo.temperatureDeviceId;
@@ -2544,6 +2562,24 @@ async function loadNatureRemo(force = false, tokenOverride = "") {
     return null;
   }
   if (!token) {
+    if (settings.switchBot?.token && settings.switchBot?.secret) {
+      const credentialKey=natureTokenKey(settings.switchBot.token)+':'+natureTokenKey(settings.switchBot.secret);
+      let discovery=latestSwitchBotDiscovery, stale=false;
+      if(force || discovery?.credentialKey!==credentialKey || Date.now()-Number(discovery?.fetchedAt||0)>=5*60*1000) {
+        const fresh=await loadSwitchBot(false);
+        if(requestId!==natureRemoLoadSequence) return null;
+        stale=!fresh; discovery=fresh || (discovery?.credentialKey===credentialKey ? discovery : null);
+      }
+      const sensors=(discovery?.devices||[]).filter(d=>typeof d.state?.temperature==='number' && Number.isFinite(d.state.temperature));
+      const device=settings.switchBot.temperatureDeviceId ? sensors.find(d=>d.externalId===settings.switchBot.temperatureDeviceId) : sensors.sort((a,b)=>a.externalId.localeCompare(b.externalId))[0];
+      emitNatureRemo({}, stale, device ? '' : 'SwitchBotの温度センサーを取得できません');
+      latestNatureRemoPayload={...latestNatureRemoPayload,temperature:device?.state?.temperature??null,updatedAt:device?.state?.observedAt||discovery?.fetchedAt||null,deviceName:device?.name||'',temperatureProvider:'switchbot'};
+      window.__moriyaNatureRemoPayload=latestNatureRemoPayload;
+      document.dispatchEvent(new CustomEvent('moriya-nature-remo-data',{detail:latestNatureRemoPayload}));
+      window.MoriyaNewUi?.renderNatureRemo?.(latestNatureRemoPayload);
+      populateSwitchBotTemperature();
+      return discovery;
+    }
     const hasOtherAction = settings.natureRemo.actions.some((item) => ["switchbot", "tuya", "scene"].includes(item.action?.kind));
     emitNatureRemo({}, false, hasOtherAction ? "" : "アクセストークンを設定してください");
     if (el.natureRemoStatus) el.natureRemoStatus.textContent = hasOtherAction ? "他サービスの家電操作を使用中" : "アクセストークンを入力してください";
@@ -3457,7 +3493,7 @@ function setupSettings() {
         pendingSmartActionsFor("home", index).forEach((pending) => cancelSmartActionSchedule(pending.id));
       }
     });
-    settings.switchBot = normalizeSwitchBotSettings({ token: el.switchBotToken?.value, secret: el.switchBotSecret?.value });
+    settings.switchBot = normalizeSwitchBotSettings({ token: el.switchBotToken?.value, secret: el.switchBotSecret?.value, temperatureDeviceId: document.getElementById('switchBotTemperatureDevice')?.value });
     settings.smartLife = normalizeSmartLifeSettings({
       endpoint: el.tuyaEndpoint?.value,
       accessId: el.tuyaAccessId?.value,

@@ -451,6 +451,7 @@
               <p class="dialog-note">SwitchBotアプリのDeveloper Optionsで取得したTokenとSecret Keyをこの端末に保存します。</p>
               <label><span>Token</span><input id="switchBotToken" type="password" autocomplete="off" spellcheck="false" /></label>
               <label><span>Secret Key</span><input id="switchBotSecret" type="password" autocomplete="off" spellcheck="false" /></label>
+              <label><span>室温センサー（Nature Remo未設定時）</span><select id="switchBotTemperatureDevice"><option value="">自動（先頭の温度センサー）</option></select></label>
               <div class="inline-fields nature-remo-connect-row"><button id="switchBotConnect" type="button">機器を直接読み込む</button><span id="switchBotStatus" role="status">未設定</span></div>
             </details>
             <details class="nature-scene-settings" id="smartLifeSettings">
@@ -770,5 +771,6 @@
     <script src="./app-update-core.js?v=20260928-1"></script>
     <script src="./app-updates.js?v=20260928-1"></script>
     <script src="./web-updates.js?v=2.0.0"></script>
-  </body>
+<script src="qr-transfer-core.js"></script><script src="qr-transfer-main.js"></script><script src="qr-transfer.js"></script>
+</body>
 </html>

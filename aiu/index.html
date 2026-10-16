@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>守谷サイネージ AIU ver 1.3.0</title>
+<link rel="stylesheet" href="aiu.css">
+</head>
+<body>
+<div id="stage">
+ <div id="homePage" class="page home-page">
+  <button id="homeWeather" type="button" class="home-weather"><span class="location">茨城県 守谷市</span><span id="weather" class="weather">天気を取得中</span><span id="weatherSymbol" class="weather-symbol">☁</span><span id="weatherTemp" class="weather-temp">--°</span><span id="weatherFacts" class="weather-facts">-- / --°　降水 --%</span></button>
+  <div id="homeForecast" class="home-forecast"></div>
+  <button id="goCommute" type="button" class="edge edge-left" aria-label="時刻表と予定を表示">»</button><button id="goWeather" type="button" class="edge edge-right" aria-label="天気の詳細を表示">«</button>
+  <button id="switchBotOpen" type="button" class="home-smart">SwitchBot 家電操作</button>
+  <div class="home-garbage"><span class="eyebrow">ごみ収集予定</span><div id="garbage">確認中</div></div><div id="homeAgenda" class="home-agenda"></div>
+  <button id="clockTap" type="button" class="clock-card"><span id="clock">--:--</span><span id="date">----/--/--</span></button>
+ </div>
+ <div id="commutePage" class="page detail-page" style="display:none">
+  <button id="commuteHome" type="button" class="home-button">⌂ ホーム</button>
+  <div class="page-heading"><span class="eyebrow">TSUKUBA EXPRESS</span><h2>守谷駅 上り</h2><span id="trainMode" class="muted"></span></div>
+  <div class="commute-left card"><h3>秋葉原方面</h3><table class="trains"><thead><tr><th>発車</th><th>種別</th><th>あと</th></tr></thead><tbody id="trains"></tbody></table><p id="trainStatus" class="muted"></p></div>
+  <div class="commute-right"><div class="card"><h3>今日の予定</h3><div id="todayEvents" class="event-list"></div></div><div class="card"><h3>明日の予定</h3><div id="tomorrowEvents" class="event-list"></div></div><button id="openCalendar" type="button">月カレンダー・日付を選択</button><p id="calendarStatus" class="muted"></p><div id="notes" class="notes"></div></div>
+  <div id="commuteClock" class="compact-clock">--:--</div>
+ </div>
+ <div id="weatherPage" class="page detail-page" style="display:none">
+  <button id="weatherHome" type="button" class="home-button">⌂ ホーム</button>
+  <div class="page-heading"><span class="eyebrow">WEATHER / MORIYA</span><h2 id="weatherDetail">守谷の天気</h2><p id="weatherStatus" class="muted"></p><button id="refreshWeather" type="button">天気を更新</button></div>
+  <div class="weather-board card"><h3>時間ごとの予報</h3><div id="hourlyForecast" class="forecast-list"></div></div><div class="daily-board card"><h3>週間予報</h3><div id="dailyForecast" class="forecast-list"></div></div>
+  <div id="weatherClock" class="compact-clock">--:--</div>
+ </div>
+ <div class="version-mark">AIU ver</div><button id="settingsButton" type="button" class="settings-button" aria-label="設定">⚙</button>
+</div>
+<div id="settings" class="settings" style="display:none">
+ <h2>AIU ver 設定</h2>
+ <form id="settingsForm">
+  <p><label>次発までの余裕（分） <input id="lead" type="number" min="0" max="120"></label></p>
+  <p><label>ダイヤ <select id="dayType"><option value="auto">自動（土日・同梱祝日）</option><option value="weekday">平日</option><option value="weekend">土休日</option></select></label></p>
+  <p><label><input id="seconds" type="checkbox"> 秒を表示（1秒ごとに時計のみ更新）</label></p>
+  <p><label><input id="keepAwake" type="checkbox"> Android版で画面をスリープさせない</label></p>
+  <p id="apkUpdateControls" style="display:none"><button id="checkAiuUpdate" type="button">画面データの更新を確認</button> <span id="aiuUpdateStatus" class="muted"></span></p>
+  <p class="muted">APK版は起動時に署名付きの画面データを確認します。更新できない場合も保存済みの画面で動作します。</p>
+  <p><label>文字の大きさ <select id="fontSize"><option value="normal">標準</option><option value="large">大きめ</option></select></label></p>
+  <p><label>背景 <select id="background"><option value="photo">元のデザインの静止背景</option><option value="plain">単色（最小負荷）</option></select></label></p>
+  <h2>カレンダー（iCal）</h2><p><label>iCal URL <input id="icalUrl" type="text" autocomplete="off" maxlength="4096"></label></p><p><button id="refreshCalendar" type="button">入力したURLを保存して取得</button></p><p id="calendarSetupStatus" class="muted"></p><p class="muted">今日・明日の予定、月カレンダー、日付選択に対応。取得済みの予定はオフラインでも表示します。</p>
+  <p><label>今日のメモ・予定（端末内保存・最大2000文字）<br><textarea id="noteInput" rows="5" maxlength="2000"></textarea></label></p>
+  <p><label><input id="weatherEnabled" type="checkbox"> 守谷の天気を取得（30分間隔）</label></p>
+  <p class="muted">古い端末ではHTTPS・証明書の制約で天気を取得できない場合があります。取得できた天気は日時付きで保存します。</p>
+  <h2>SwitchBot</h2>
+  <p><label>Token <input id="switchBotToken" type="password" autocomplete="off" maxlength="512"></label></p>
+  <p><label>Secret Key <input id="switchBotSecret" type="password" autocomplete="off" maxlength="512"></label></p>
+  <p><button id="switchBotDiscover" type="button">保存して機器を取得</button> <button id="switchBotForget" type="button">登録を解除</button></p>
+  <p id="switchBotSetupStatus" class="muted"></p>
+  <div id="switchBotDevices"></div>
+  <p class="muted">操作する機器を最大4台選択してください。機器取得・操作時だけ通信し、定期通信は行いません。認証情報はこの端末内に保存します。</p>
+  <p>アニメーション・背景動画・端末間接続はありません。時計・時刻表・メモはネット接続不要です。</p>
+  <p><button type="submit">保存して閉じる</button> <button id="cancelSettings" type="button">閉じる</button></p>
+  <p id="saveStatus" class="muted"></p>
+ </form>
+</div>
+<div id="switchBotPanel" class="settings" style="display:none">
+ <h2>SwitchBot 家電操作</h2>
+ <p><button id="switchBotClose" type="button">閉じる</button></p>
+ <div id="switchBotControls"></div>
+ <p id="switchBotControlStatus" class="muted"></p>
+</div>
+<div id="calendarPanel" class="settings" style="display:none"><h2>カレンダー</h2><p><button id="closeCalendar" type="button">閉じる</button> <button id="calendarPrev" type="button">前月</button> <button id="calendarToday" type="button">今日</button> <button id="calendarNext" type="button">翌月</button></p><h3 id="calendarMonth"></h3><div id="monthCalendar"></div><h3 id="selectedDate"></h3><div id="selectedEvents" class="event-list"></div><p id="calendarDetailStatus" class="muted"></p></div>
+<script src="data/tx-moriya-akihabara.js"></script>
+<script src="data/moriya-garbage-calendar.js"></script>
+<script src="data/holidays.js"></script>
+<script src="aiu.js"></script>
+<script src="ical.js"></script>
+<script src="calendar.js"></script>
+<script src="switchbot.js"></script>
+<script src="update.js"></script>
+<script src="qr-transfer-core.js"></script><script src="qr-adapter.js"></script><script src="qr-transfer.js"></script>
+</body>
+</html>
